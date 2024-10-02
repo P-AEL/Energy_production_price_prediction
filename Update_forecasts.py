@@ -15,6 +15,7 @@ if os.path.exists('proxies.txt'):
     proxies = {'http': proxiy, 'https': proxiy}
 else:
     print("No proxies.txt file found.")
+    proxies = None
 
 rebase_api_client = comp_utils.RebaseAPI(api_key=open("A-Team_key.txt").read(), proxy=proxies)
 

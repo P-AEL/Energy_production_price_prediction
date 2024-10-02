@@ -14,6 +14,7 @@ if os.path.exists('proxies.txt'):
         proxiy = file.read()
     proxies = {'http': proxiy, 'https': proxiy}
 else:
+    proxies = None
     print("No proxies.txt file found.")
 
 min_date = "2024-05-01"
