@@ -10,15 +10,20 @@ class RebaseAPI:
   base_url = 'https://api.rebase.energy'
 
   def __init__(
-    self,
-    api_key = open("team_key.txt").read()
-    ):
+  self,
+  api_key = open("team_key.txt").read(),
+  proxy: dict = None
+  ):
     self.api_key = api_key
     self.headers = {
       'Authorization': f"Bearer {api_key}"
       }
     self.session = Session()
     self.session.headers = self.headers
+    self.ssl_verify = True
+    if proxy:
+      self.session.proxies.update(proxy)
+      self.ssl_verify = False
 
 
   def get_variable(
@@ -34,7 +39,7 @@ class RebaseAPI:
                  ):
     url = f"{self.base_url}/challenges/data/{variable}"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
 
     data = resp.json()
     df = pd.DataFrame(data)
@@ -43,7 +48,7 @@ class RebaseAPI:
   def get_day_ahead_price(self,day):
     url = f"{self.base_url}/challenges/data/day_ahead_price"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     print(resp.json())
     df = pd.DataFrame(data)
@@ -52,7 +57,7 @@ class RebaseAPI:
   def get_market_index(self,day):
     url = f"{self.base_url}/challenges/data/market_index"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     df = pd.DataFrame(data)
     return df
@@ -60,7 +65,7 @@ class RebaseAPI:
   def get_imbalance_price(self,day):
     url = f"{self.base_url}/challenges/data/imbalance_price"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     df = pd.DataFrame(data)
     return df
@@ -68,7 +73,7 @@ class RebaseAPI:
   def get_wind_total_production(self,day):
     url = f"{self.base_url}/challenges/data/wind_total_production"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     df = pd.DataFrame(data)
     return df
@@ -76,7 +81,7 @@ class RebaseAPI:
   def get_solar_total_production(self,day):
     url = f"{self.base_url}/challenges/data/solar_total_production"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     df = pd.DataFrame(data)
     return df
@@ -84,7 +89,7 @@ class RebaseAPI:
   def get_solar_wind_forecast(self,day):
     url = f"{self.base_url}/challenges/data/solar_and_wind_forecast"
     params = {'day': day}
-    resp = self.session.get(url, params=params)
+    resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
     df = pd.DataFrame(data)
     return df
@@ -93,7 +98,7 @@ class RebaseAPI:
   # Day ahead demand forecast
   def get_day_ahead_demand_forecast(self):
     url = f"{self.base_url}/challenges/data/day_ahead_demand"
-    resp = self.session.get(url)
+    resp = self.session.get(url,verify=self.ssl_verify)
     print(resp)
     return resp.json()
 
@@ -101,12 +106,13 @@ class RebaseAPI:
   # Margin forecast
   def get_margin_forecast(self):
     url = f"{self.base_url}/challenges/data/margin_forecast"
-    resp = self.session.get(url)
+    resp = self.session.get(url,verify=self.ssl_verify)
     print(resp)
     return resp.json()
 
 
   def query_weather_latest(self,model, lats, lons, variables, query_type):
+
     url = f"{self.base_url}/weather/v2/query"
 
     body = {
@@ -119,7 +125,7 @@ class RebaseAPI:
         'forecast-horizon': 'latest'
     }
 
-    resp = requests.post(url, json=body, headers={'Authorization': self.api_key})
+    resp = requests.post(url, json=body, headers={'Authorization': self.api_key},verify=self.ssl_verify)
     print(resp.status_code)
 
     return resp.json()
@@ -190,7 +196,7 @@ class RebaseAPI:
 
     url = f"{self.base_url}/challenges/{self.challenge_id}/submit"
 
-    resp = self.session.post(url,headers=self.headers, json=data)
+    resp = self.session.post(url,headers=self.headers, json=data, verify=self.ssl_verify)
     
     print(resp)
     print(resp.text)
