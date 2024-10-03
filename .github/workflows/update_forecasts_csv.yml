@@ -1,0 +1,53 @@
+name: Update Forecasts_csv from API
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'  # Runs every 6 hours
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This line is crucial - it gives write permission
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Dynamically create team_key.txt and add the API key from GitHub Secrets
+      - name: Create team_key.txt with API key
+        run: |
+          echo ${{ secrets.API_KEY }} > team_key.txt
+
+      # Run both Python scripts
+      - name: Run Python scripts
+        run: |
+          python Update_forecasts.py
+
+      # Check which CSV files have been modified (Debugging step)
+      - name: Show changed files
+        run: git status --short
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/P-AEL/Energy_production_price_prediction.git
+
+
+      # Commit and push changes, if there are any
+      - name: Commit and push CSV changes
+        run: |
+          git add *.csv
+          git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
+          git push
