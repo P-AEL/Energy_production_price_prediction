@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 import datetime
 import warnings
+import os
+
 
 class RebaseAPI:
   
@@ -200,7 +202,7 @@ class RebaseAPI:
     
     print(resp)
     print(resp.text)
-
+    os.makedirs("logs", exist_ok=True)
     # Write log file
     text_file = open(f"logs/sub_{pd.Timestamp('today').strftime('%Y%m%d-%H%M%S')}.txt", "w")
     text_file.write(resp.text)
