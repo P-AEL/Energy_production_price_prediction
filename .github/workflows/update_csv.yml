@@ -2,7 +2,7 @@ name: Update CSV and Forecasts from API
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Runs every 6 hours
+    - cron: '0 */12 * * *'  # Runs every 6 hours
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
@@ -33,7 +33,6 @@ jobs:
       - name: Run Python scripts
         run: |
           python Update_basic_files.py
-          python Update_forecasts.py
 
       # Check which CSV files have been modified (Debugging step)
       - name: Show changed files
