@@ -17,7 +17,7 @@ else:
     print("No proxies.txt file found.")
     proxies = None
 
-rebase_api_client = comp_utils.RebaseAPI(api_key=open("A-Team_key.txt").read(), proxy=proxies)
+rebase_api_client = comp_utils.RebaseAPI(api_key=open("team_key.txt").read(), proxy=proxies)
 
 different_values_to_update = ["day_ahead_demand_forecast", "margin_forecast"]
 
