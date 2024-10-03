@@ -52,7 +52,6 @@ class RebaseAPI:
     params = {'day': day}
     resp = self.session.get(url, params=params,verify=self.ssl_verify)
     data = resp.json()
-    print(resp.json())
     df = pd.DataFrame(data)
     return df
   

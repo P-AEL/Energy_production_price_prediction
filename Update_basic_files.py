@@ -17,11 +17,9 @@ else:
     proxies = None
     print("No proxies.txt file found.")
 
-min_date = "2024-05-01"
+min_date = "2020-09-20"
 api_key = open("team_key.txt").read()
-print("API key loaded. Length:", len(api_key))
 api_key_stripped = api_key.strip()
-print("API Key Length After Stripping:", len(api_key_stripped))
 rebase_api_client = comp_utils.RebaseAPI(api_key=api_key_stripped, proxy=proxies)
 
 different_values_to_update = ["day_ahead_price", "imbalance_price", "market_index", "solar_total_production", "wind_total_production", "solar_wind_forecast"]
@@ -46,7 +44,7 @@ def Update(min_date, value_to_update):
     try:
         min_date = datetime.strptime(min_date, '%Y-%m-%d').date()
         today = datetime.today().date()
-        csv_path = f"{value_to_update}.csv"
+        csv_path = f"basic_files/{value_to_update}.csv"
         
         # Initialize an empty DataFrame
         if os.path.exists(csv_path):
