@@ -17,7 +17,7 @@ else:
     proxies = None
     print("No proxies.txt file found.")
 
-min_date = "2020-09-20"
+min_date = "2021-02-20"
 api_key = open("team_key.txt").read()
 api_key_stripped = api_key.strip()
 rebase_api_client = comp_utils.RebaseAPI(api_key=api_key_stripped, proxy=proxies)
@@ -32,6 +32,7 @@ def Update(min_date, value_to_update):
     :param csv_path: The path to the CSV file to read/write
     :return: None
     """
+    print(f"Updating {value_to_update} data")
     mapping_value_to_columns = {
         "day_ahead_price": ['timestamp_utc', 'settlement_date', 'settlement_period', 'price'],
         "imbalance_price": ['timestamp_utc', 'settlement_date', 'settlement_period', 'imbalance_price'],
@@ -50,7 +51,10 @@ def Update(min_date, value_to_update):
         if os.path.exists(csv_path):
             try:
                 df = pd.read_csv(csv_path)
-                min_date = df['settlement_date'].max()
+                if value_to_update == "solar_total_production":
+                    min_date = df['timestamp_utc'].max()[:10]
+                else:
+                    min_date = df['settlement_date'].max()
                 # df['timestamp_utc'] = pd.to_datetime(df['timestamp_utc'])
                 print(f"Loaded existing CSV with {len(df)} rows")
             except Exception as e:
