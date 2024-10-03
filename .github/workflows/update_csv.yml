@@ -8,7 +8,9 @@ on:
 jobs:
   update-data:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write  # This line is crucial - it gives write permission
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
