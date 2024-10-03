@@ -1,0 +1,49 @@
+name: Update CSV from API
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Runs every 6 hours
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11.3'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Dynamically create team_key.txt and add the API key from GitHub Secrets
+      - name: Create team_key.txt with API key
+        run: |
+          echo ${{ secrets.API_KEY }} > team_key.txt
+
+      - name: Run the Python script
+        run: python Update_basic_files.py
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      # Check if there are any changes to .csv files
+      - name: Check for changes
+        run: |
+          git add *.csv
+          git diff --cached --exit-code || echo "CSV files changed"
+
+      # Commit and push changes only if there are changes
+      - name: Commit and push CSV changes
+        if: ${{ steps.check-for-changes.outputs.changes_detected == 'true' }}
+        run: |
+          git commit -m "Updated CSV files from GitHub Actions"
+          git push
