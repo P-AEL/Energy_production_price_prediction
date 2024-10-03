@@ -20,6 +20,8 @@ else:
 rebase_api_client = comp_utils.RebaseAPI(api_key=open("team_key.txt").read(), proxy=proxies)
 api_key = open("team_key.txt").read()
 print("API key loaded. Length:", len(api_key))
+api_key_stripped = api_key.strip()
+print("API Key Length After Stripping:", len(api_key_stripped))
 different_values_to_update = ["day_ahead_demand_forecast", "margin_forecast"]
 
 def Update(value_to_update):
