@@ -1,4 +1,4 @@
-name: Update CSV from API
+name: Update CSV and Forecasts from API
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
-  update-csv:
+  update-data:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.11.3'
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
@@ -27,23 +27,24 @@ jobs:
         run: |
           echo ${{ secrets.API_KEY }} > team_key.txt
 
-      - name: Run the Python script
-        run: python Update_basic_files.py
+      # Run both Python scripts
+      - name: Run Python scripts
+        run: |
+          python Update_basic_files.py
+          python Update_forecasts.py
+
+      # Check which CSV files have been modified (Debugging step)
+      - name: Show changed files
+        run: git status --short
 
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      # Check if there are any changes to .csv files
-      - name: Check for changes
+      # Commit and push changes, if there are any
+      - name: Commit and push CSV changes
         run: |
           git add *.csv
-          git diff --cached --exit-code || echo "CSV files changed"
-
-      # Commit and push changes only if there are changes
-      - name: Commit and push CSV changes
-        if: ${{ steps.check-for-changes.outputs.changes_detected == 'true' }}
-        run: |
-          git commit -m "Updated CSV files from GitHub Actions"
+          git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
           git push
