@@ -2,7 +2,7 @@ name: Update CSV and Forecasts from API
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # Runs every 6 hours
+    - cron: '0 */11 * * *'  # Runs every 6 hours
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
