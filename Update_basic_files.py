@@ -18,7 +18,8 @@ else:
     print("No proxies.txt file found.")
 
 min_date = "2024-05-01"
-
+api_key = open("team_key.txt").read()
+print(api_key)
 rebase_api_client = comp_utils.RebaseAPI(api_key=open("team_key.txt").read(), proxy=proxies)
 
 different_values_to_update = ["day_ahead_price", "imbalance_price", "market_index", "solar_total_production", "wind_total_production", "solar_wind_forecast"]
