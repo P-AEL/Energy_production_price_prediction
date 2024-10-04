@@ -1,4 +1,4 @@
-name: Update Forecasts_csv from API
+name: Update Forecasts_csv and weather from API
 
 on:
   schedule:
@@ -33,6 +33,7 @@ jobs:
       - name: Run Python scripts
         run: |
           python Update_forecasts.py
+          python Update_Weather.py
 
       # Check which CSV files have been modified (Debugging step)
       - name: Show changed files
@@ -50,4 +51,6 @@ jobs:
         run: |
           git add *.csv
           git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
+          git pull --rebase origin main
           git push
+
