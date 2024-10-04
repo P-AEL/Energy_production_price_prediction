@@ -51,6 +51,8 @@ jobs:
         run: |
           git add *.csv
           git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
+          git stash --include-untracked
           git pull --rebase origin main || git rebase --abort
+          git stash pop || true
           git push origin main
 
