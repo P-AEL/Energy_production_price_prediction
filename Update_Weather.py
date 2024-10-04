@@ -17,11 +17,11 @@ if os.path.exists('proxies.txt'):
 else:
     print("No proxies.txt file found.")
     proxies = None
-with open("A-Team_key.txt") as f:
-    api_key = f.read()
-rebase_api_client = comp_utils.RebaseAPI(api_key=open("A-Team_key.txt").read(), proxy=proxies)
+api_key = open("team_key.txt").read()
+api_key_stripped = api_key.strip()
+rebase_api_client = comp_utils.RebaseAPI(api_key=api_key_stripped, proxy=proxies)
 
-different_values_to_update = ["DWD_ICON-EU","NCEP_GFS","MeteoFrance_ARPEGE-EU","ECMWF_ERA5"]
+different_values_to_update = ["DWD_ICON-EU","NCEP_GFS"]
 
 def Update(model_to_update):
     """
@@ -31,7 +31,7 @@ def Update(model_to_update):
     :param csv_path: The path to the CSV file to read/write
     :return: None
     """
-    csv_path = f"{model_to_update}.csv"
+    csv_path = f"weather_data/{model_to_update}.csv"
     basic_variables = "Temperature, WindSpeed, WindSpeed:100, WindDirection:100, CloudCover, RelativeHumidity, PressureReducedMSL, SolarDownwardRadiation, TotalPrecipitation"
     url = "https://api.rebase.energy/weather/v2/query"
     lats = [52.4872562, 52.8776682, 52.1354277, 52.4880497, 51.9563696, 52.2499177, 52.6416477, 52.2700912, 52.1960768, 52.7082618, 52.4043468, 52.0679429, 52.024023, 52.7681276, 51.8750506, 52.5582373, 52.4478922, 52.5214863, 52.8776682, 52.0780721]
