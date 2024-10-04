@@ -58,7 +58,7 @@ def Update(model_to_update):
             df = pd.DataFrame(columns=["ref_datetime","valid_datetime","latitude","longitude"])
             print("Creating new CSV file")
         
-        response = requests.post(url, json=body, headers={"Authorization": f"{api_key}"})
+        response = requests.post(url, json=body, headers={"Authorization": f"{api_key_stripped}"})
         for point in range(len(response.json())):
             new_df = pd.DataFrame(response.json()[point])
             new_df['latitude'] = lats[point]
