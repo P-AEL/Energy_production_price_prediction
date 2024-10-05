@@ -1,0 +1,259 @@
+wind_direction_model_diff                -0.267201
+direction_diff_dwd                       -0.175400
+humidity_model_diff                      -0.165358
+MIP                                      -0.150851
+Temperature_ncep_rolling_mean_6h         -0.143564
+Temperature_ncep                         -0.142823
+DA_Price                                 -0.131504
+Temperature_dwd_rolling_mean_6h          -0.127831
+Temperature_dwd                          -0.125962
+direction_diff_ncep                      -0.120320
+SS_Price                                 -0.106251
+boa_MWh                                  -0.074960
+season                                   -0.067980
+RelativeHumidity_dwd                     -0.050708
+forecast_horizon                          0.000189
+day_of_week                               0.000363
+hour                                      0.014357
+wind_speed_model_diff                     0.028372
+RelativeHumidity_ncep                     0.054560
+month                                     0.057127
+temperature_model_diff                    0.066031
+WindSpeed:100_ncep_rolling_std_6h         0.090345
+WindSpeed:100_dwd_rolling_std_6h          0.102086
+WindDirection:100_dwd_rolling_mean_6h     0.108429
+WindDirection:100_dwd                     0.114422
+...
+WindSpeed:100_ncep                        0.821797
+WindSpeed:100_dwd                         0.826135
+Wind_MW                                   0.995052
+Wind_MWh_credit                           1.000000
+Name: Wind_MWh_credit, dtype: float64
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+Index(['valid_time', 'reference_time', 'RelativeHumidity_dwd',
+       'Temperature_dwd', 'WindDirection_dwd', 'WindDirection:100_dwd',
+       'WindSpeed_dwd', 'WindSpeed:100_dwd', 'RelativeHumidity_ncep',
+       'Temperature_ncep', 'WindDirection_ncep', 'WindDirection:100_ncep',
+       'WindSpeed_ncep', 'WindSpeed:100_ncep', 'dtm', 'MIP', 'Wind_MW',
+       'SS_Price', 'boa_MWh', 'DA_Price', 'Wind_MWh_credit'],
+      dtype='object')
+Series([], dtype: int64)
+Mean Squared Error: 14962.277636657054
+RelativeHumidity_dwd     2.466885
+Temperature_dwd          2.180043
+WindDirection_dwd       -0.063357
+WindSpeed_dwd           46.634465
+dtype: float64
+Mean Squared Error: 14633.900759631573
+RelativeHumidity_dwd     -0.250755
+Temperature_dwd           0.739294
+WindDirection:100_dwd    -0.041824
+WindSpeed:100_dwd        36.951738
+dtype: float64
+Mean Squared Error: 15471.114965766348
+RelativeHumidity_ncep     1.398799
+Temperature_ncep          1.877318
+WindDirection_ncep        0.012409
+WindSpeed_ncep           46.496240
+dtype: float64
+Mean Squared Error: 14937.881912504792
+RelativeHumidity_ncep     -0.449161
+Temperature_ncep           0.411196
+WindDirection:100_ncep     0.011090
+WindSpeed:100_ncep        36.959610
+dtype: float64
+Mean Squared Error: 14938.516400663282
+RelativeHumidity_ncep     -0.425817
+Temperature_ncep           0.319345
+WindDirection:100_ncep     0.011597
+WindSpeed:100_ncep        36.896945
+dtype: float64
+Mean Squared Error: 15471.75247257699
+RelativeHumidity_ncep     1.394322
+Temperature_ncep          1.792181
+WindDirection_ncep        0.012854
+WindSpeed_ncep           46.403795
+dtype: float64
+Mean Squared Error: 14634.577809894843
+RelativeHumidity_dwd     -0.225548
+Temperature_dwd           0.650510
+WindDirection:100_dwd    -0.041187
+WindSpeed:100_dwd        36.896966
+dtype: float64
+Mean Squared Error: 14937.881912504792
+                        Coefficient        P-value
+const                    -48.688569  8.985573e-166
+RelativeHumidity_ncep     -0.449161  2.305193e-100
+Temperature_ncep           0.411196   3.896858e-16
+WindDirection:100_ncep     0.011090   2.181581e-07
+WindSpeed:100_ncep        36.959610   0.000000e+00
+Mean Squared Error: 11530.927524755072
+Mean Squared Error: 11648.81176231685
+Mean Squared Error: 11527.697226893139
+Mean Squared Error: 12188.675621854181
+RelativeHumidity_dwd	Temperature_dwd	WindDirection_dwd	WindDirection:100_dwd	WindSpeed_dwd	WindSpeed:100_dwd	RelativeHumidity_ncep	Temperature_ncep	WindDirection_ncep	WindDirection:100_ncep	...	temperature_model_diff	humidity_model_diff	WindSpeed:100_dwd_rolling_mean_6h	WindSpeed:100_dwd_rolling_std_6h	WindSpeed:100_ncep_rolling_mean_6h	WindSpeed:100_ncep_rolling_std_6h	WindDirection:100_dwd_rolling_mean_6h	WindDirection:100_ncep_rolling_mean_6h	Temperature_dwd_rolling_mean_6h	Temperature_ncep_rolling_mean_6h
+0	0.314564	1.195437	-1.545796	-1.559559	0.609730	0.453389	0.254291	1.317087	-1.610707	-1.601947	...	-0.451911	0.041755	0.000000	0.000000	0.000000	0.000000	3.246239e-16	-3.263579e-16	0.000000	4.589976e-16
+1	0.289829	1.194383	-1.550076	-1.563548	0.574185	0.421477	0.294276	1.303427	-1.610536	-1.604489	...	-0.394587	-0.061102	0.000000	0.000000	0.000000	0.000000	3.246239e-16	-3.263579e-16	0.000000	4.589976e-16
+2	0.265097	1.193329	-1.554355	-1.567537	0.538640	0.389566	0.334260	1.289766	-1.610366	-1.607030	...	-0.337264	-0.163956	0.000000	0.000000	0.000000	0.000000	3.246239e-16	-3.263579e-16	0.000000	4.589976e-16
+3	0.209502	1.204188	-1.557786	-1.570407	0.503528	0.360328	0.348800	1.279917	-1.594113	-1.592635	...	-0.242029	-0.270083	0.000000	0.000000	0.000000	0.000000	3.246239e-16	-3.263579e-16	0.000000	4.589976e-16
+4	0.153909	1.215047	-1.561218	-1.573276	0.468416	0.331089	0.363340	1.270068	-1.577861	-1.578239	...	-0.146796	-0.376208	0.000000	0.000000	0.000000	0.000000	3.246239e-16	-3.263579e-16	0.000000	4.589976e-16
+...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...	...
+529625	1.102699	0.124793	-1.995250	-2.006658	-0.203842	-0.282022	1.302983	0.180901	-2.042286	-2.009281	...	-0.244868	-0.536883	-0.299462	-0.775187	-0.142077	-0.801893	-2.072801e+00	-2.065088e+00	0.195221	2.551497e-01
+529626	1.053413	0.108824	-1.981852	-1.997936	-0.163265	-0.277106	1.413850	0.154906	-2.035637	-2.007776	...	-0.200571	-0.793619	-0.297320	-0.758968	-0.147079	-0.777704	-2.067920e+00	-2.061484e+00	0.167392	2.251053e-01
+529627	0.932709	0.136840	-1.982853	-1.996680	-0.214362	-0.279190	1.448382	0.113406	-2.032469	-2.016047	...	0.118409	-1.028956	-0.293616	-0.756070	-0.156696	-0.705222	-2.062721e+00	-2.059885e+00	0.149684	1.937524e-01
+529628	0.812004	0.164857	-1.983855	-1.995424	-0.265460	-0.281273	1.482915	0.071906	-2.029301	-2.024317	...	0.437389	-1.264297	-0.288350	-0.796717	-0.170928	-0.622687	-2.057205e+00	-2.060294e+00	0.142097	1.610910e-01
+529629	0.816384	0.167798	-1.997802	-2.003078	-0.286743	-0.289442	1.428391	0.037066	-2.024353	-2.027946	...	0.609701	-1.167321	-0.286620	-0.822218	-0.190966	-0.530007	-2.054050e+00	-2.062270e+00	0.140804	1.276828e-01
+529630 rows × 43 columns
+
+'\n# Assuming df is your dataframe and \'target\' is your target column\nsummary, selected_features = run_feature_selection(df, \'target\')\nplot_feature_selection_results(summary)\n\n# Print final selected features and their coefficients\nfinal_model = LinearRegression()\nX_final = df[selected_features]\nfinal_model.fit(X_final, df[\'target\'])\n\ncoefficients = pd.DataFrame({\n    \'Feature\': selected_features,\n    \'Coefficient\': final_model.coef_\n}).sort_values(by=\'Coefficient\', key=abs, ascending=False)\n\nprint("\nFinal Model Coefficients:")\nprint(coefficients)\n'
+Index(['valid_time', 'reference_time', 'RelativeHumidity_dwd',
+       'Temperature_dwd', 'WindDirection_dwd', 'WindDirection:100_dwd',
+       'WindSpeed_dwd', 'WindSpeed:100_dwd', 'RelativeHumidity_ncep',
+       'Temperature_ncep', 'WindDirection_ncep', 'WindDirection:100_ncep',
+       'WindSpeed_ncep', 'WindSpeed:100_ncep', 'dtm', 'MIP', 'Wind_MW',
+       'SS_Price', 'boa_MWh', 'DA_Price', 'Wind_MWh_credit'],
+      dtype='object')
+"\n# Assuming df is your dataframe and 'target' is your target column\nsummary, selected_features, final_model, importances = run_decision_tree_selection(df, 'target')\n\n# To get predictions from the final model:\nX_final = df[selected_features]\npredictions = final_model.predict(X_final)\n"
+Step 1:
+Added feature: wind_power_density_100_dwd
+R-squared score: 0.7380
+Feature importance: 1.0000
+Tree depth: 12
+MSE: 0.2275
+Current features: ['wind_power_density_100_dwd']
+--------------------
+Step 2:
+Added feature: wind_power_density_100_ncep
+R-squared score: 0.7623
+Feature importance: 0.1791
+Tree depth: 12
+MSE: 0.1839
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep']
+--------------------
+Step 3:
+Added feature: WindSpeed:100_dwd_rolling_std_6h
+R-squared score: 0.7717
+Feature importance: 0.0096
+Tree depth: 12
+MSE: 0.1811
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h']
+--------------------
+Step 4:
+Added feature: boa_MWh
+R-squared score: 0.7734
+Feature importance: 0.0011
+Tree depth: 12
+MSE: 0.1814
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh']
+--------------------
+Step 5:
+Added feature: WindSpeed:100_ncep
+R-squared score: 0.7734
+Feature importance: 0.0877
+Tree depth: 12
+MSE: 0.1814
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep']
+--------------------
+Step 6:
+Added feature: WindSpeed:100_dwd
+R-squared score: 0.7734
+Feature importance: 0.0320
+Tree depth: 12
+MSE: 0.1814
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd']
+--------------------
+Step 7:
+Added feature: wind_speed_model_diff
+R-squared score: 0.7733
+Feature importance: 0.0021
+Tree depth: 12
+MSE: 0.1811
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff']
+--------------------
+Step 8:
+Added feature: WindSpeed:100_ncep_rolling_mean_6h
+R-squared score: 0.7719
+Feature importance: 0.0047
+Tree depth: 12
+MSE: 0.1792
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h']
+--------------------
+Step 9:
+Added feature: WindSpeed:100_ncep_rolling_std_6h
+R-squared score: 0.7713
+Feature importance: 0.0034
+Tree depth: 12
+MSE: 0.1783
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h']
+--------------------
+Step 10:
+Added feature: WindSpeed:100_dwd_rolling_mean_6h
+R-squared score: 0.7704
+Feature importance: 0.0028
+Tree depth: 12
+MSE: 0.1778
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h']
+--------------------
+Step 11:
+Added feature: wind_direction_model_diff
+R-squared score: 0.7695
+Feature importance: 0.0027
+Tree depth: 12
+MSE: 0.1764
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h', 'wind_direction_model_diff']
+--------------------
+Step 12:
+Added feature: forecast_horizon
+R-squared score: 0.7687
+Feature importance: 0.0023
+Tree depth: 12
+MSE: 0.1751
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h', 'wind_direction_model_diff', 'forecast_horizon']
+--------------------
+Step 13:
+Added feature: hour
+R-squared score: 0.7664
+Feature importance: 0.0024
+Tree depth: 12
+MSE: 0.1741
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h', 'wind_direction_model_diff', 'forecast_horizon', 'hour']
+--------------------
+Step 14:
+Added feature: humidity_model_diff
+R-squared score: 0.7623
+Feature importance: 0.0031
+Tree depth: 12
+MSE: 0.1722
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h', 'wind_direction_model_diff', 'forecast_horizon', 'hour', 'humidity_model_diff']
+--------------------
+Step 15:
+Added feature: WindSpeed_ncep
+R-squared score: 0.7586
+Feature importance: 0.0069
+Tree depth: 12
+MSE: 0.1675
+Current features: ['wind_power_density_100_dwd', 'wind_power_density_100_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'boa_MWh', 'WindSpeed:100_ncep', 'WindSpeed:100_dwd', 'wind_speed_model_diff', 'WindSpeed:100_ncep_rolling_mean_6h', 'WindSpeed:100_ncep_rolling_std_6h', 'WindSpeed:100_dwd_rolling_mean_6h', 'wind_direction_model_diff', 'forecast_horizon', 'hour', 'humidity_model_diff', 'WindSpeed_ncep']
+--------------------
+
+
+Final Model Analysis:
+Tree Depth: 25
+Number of Leaves: 232909
+
+Feature Importances:
+                               Feature  Importance
+0           wind_power_density_100_dwd    0.668746
+4                   WindSpeed:100_ncep    0.144959
+5                    WindSpeed:100_dwd    0.028611
+14                      WindSpeed_ncep    0.019912
+13                 humidity_model_diff    0.017922
+2     WindSpeed:100_dwd_rolling_std_6h    0.017096
+7   WindSpeed:100_ncep_rolling_mean_6h    0.014668
+12                                hour    0.014496
+10           wind_direction_model_diff    0.014159
+8    WindSpeed:100_ncep_rolling_std_6h    0.014014
+11                    forecast_horizon    0.013509
+9    WindSpeed:100_dwd_rolling_mean_6h    0.013349
+6                wind_speed_model_diff    0.009222
+1          wind_power_density_100_ncep    0.008579
+3                              boa_MWh    0.000758

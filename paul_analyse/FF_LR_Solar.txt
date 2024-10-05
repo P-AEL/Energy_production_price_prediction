@@ -1,0 +1,140 @@
+Step 1:
+Added feature: Mean_SolarRadiation_dwd
+R-squared score: 0.8788
+MSE: 0.1122
+Correlation: 0.9422
+Current features: ['Mean_SolarRadiation_dwd']
+--------------------
+Step 2:
+Added feature: SolarDownwardRadiation_Point19_ncep
+R-squared score: 0.8848
+MSE: 0.1058
+Correlation: 0.9456
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep']
+--------------------
+Step 3:
+Added feature: cos_day
+R-squared score: 0.8889
+MSE: 0.1018
+Correlation: 0.9477
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day']
+--------------------
+Step 4:
+Added feature: RollingMean_SolarRadiation_dwd
+R-squared score: 0.8914
+MSE: 0.0993
+Correlation: 0.9491
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd']
+--------------------
+Step 5:
+Added feature: Solar_installedcapacity_mwp
+R-squared score: 0.8934
+MSE: 0.0981
+Correlation: 0.9497
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp']
+--------------------
+Step 6:
+Added feature: SolarDownwardRadiation_Point15_dwd
+R-squared score: 0.8945
+MSE: 0.0971
+Correlation: 0.9502
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd']
+--------------------
+Step 7:
+Added feature: cos_hour
+R-squared score: 0.8950
+MSE: 0.0966
+Correlation: 0.9505
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour']
+--------------------
+Step 8:
+Added feature: SolarDownwardRadiation_Point3_ncep
+R-squared score: 0.8952
+MSE: 0.0962
+Correlation: 0.9507
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep']
+--------------------
+Step 9:
+Added feature: Temperature_Point1_ncep_pes10
+R-squared score: 0.8953
+MSE: 0.0961
+Correlation: 0.9507
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10']
+--------------------
+Step 10:
+Added feature: Temperature_Point4_ncep_pes10
+R-squared score: 0.8957
+MSE: 0.0957
+Correlation: 0.9509
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10']
+--------------------
+Step 11:
+Added feature: SolarDownwardRadiation_Point14_ncep
+R-squared score: 0.8960
+MSE: 0.0951
+Correlation: 0.9513
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep']
+--------------------
+Step 12:
+Added feature: SolarDownwardRadiation_Point10_dwd
+R-squared score: 0.8962
+MSE: 0.0949
+Correlation: 0.9514
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd']
+--------------------
+Step 13:
+Added feature: day_of_year
+R-squared score: 0.8964
+MSE: 0.0947
+Correlation: 0.9515
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year']
+--------------------
+Step 14:
+Added feature: SS_Price
+R-squared score: 0.8964
+MSE: 0.0942
+Correlation: 0.9518
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price']
+--------------------
+Step 15:
+Added feature: CloudCover_Point2_dwd
+R-squared score: 0.8965
+MSE: 0.0941
+Correlation: 0.9518
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd']
+--------------------
+Step 16:
+Added feature: Cloud_TemperatureInteraction_dwd
+R-squared score: 0.8968
+MSE: 0.0939
+Correlation: 0.9519
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd', 'Cloud_TemperatureInteraction_dwd']
+--------------------
+Step 17:
+Added feature: RollingMean_CloudCover_dwd
+R-squared score: 0.8969
+MSE: 0.0938
+Correlation: 0.9520
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd', 'Cloud_TemperatureInteraction_dwd', 'RollingMean_CloudCover_dwd']
+--------------------
+Step 18:
+Added feature: Temperature_Point5_dwd_pes10
+R-squared score: 0.8971
+MSE: 0.0937
+Correlation: 0.9520
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd', 'Cloud_TemperatureInteraction_dwd', 'RollingMean_CloudCover_dwd', 'Temperature_Point5_dwd_pes10']
+--------------------
+Step 19:
+Added feature: CloudCover_Gradient_dwd
+R-squared score: 0.8972
+MSE: 0.0935
+Correlation: 0.9521
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd', 'Cloud_TemperatureInteraction_dwd', 'RollingMean_CloudCover_dwd', 'Temperature_Point5_dwd_pes10', 'CloudCover_Gradient_dwd']
+--------------------
+Step 20:
+Added feature: sin_hour
+R-squared score: 0.8973
+MSE: 0.0934
+Correlation: 0.9521
+Current features: ['Mean_SolarRadiation_dwd', 'SolarDownwardRadiation_Point19_ncep', 'cos_day', 'RollingMean_SolarRadiation_dwd', 'Solar_installedcapacity_mwp', 'SolarDownwardRadiation_Point15_dwd', 'cos_hour', 'SolarDownwardRadiation_Point3_ncep', 'Temperature_Point1_ncep_pes10', 'Temperature_Point4_ncep_pes10', 'SolarDownwardRadiation_Point14_ncep', 'SolarDownwardRadiation_Point10_dwd', 'day_of_year', 'SS_Price', 'CloudCover_Point2_dwd', 'Cloud_TemperatureInteraction_dwd', 'RollingMean_CloudCover_dwd', 'Temperature_Point5_dwd_pes10', 'CloudCover_Gradient_dwd', 'sin_hour']
+--------------------
