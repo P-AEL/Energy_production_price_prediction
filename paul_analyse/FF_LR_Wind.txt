@@ -1,0 +1,140 @@
+Step 1:
+Added feature: WindSpeed:100_dwd
+R-squared score: 0.6586
+MSE: 0.3175
+Correlation: 0.8261
+Current features: ['WindSpeed:100_dwd']
+--------------------
+Step 2:
+Added feature: wind_power_density_100_dwd
+R-squared score: 0.7166
+MSE: 0.2636
+Correlation: 0.8581
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd']
+--------------------
+Step 3:
+Added feature: WindSpeed_ncep
+R-squared score: 0.7397
+MSE: 0.2392
+Correlation: 0.8722
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep']
+--------------------
+Step 4:
+Added feature: wind_power_density_100_ncep
+R-squared score: 0.7413
+MSE: 0.2375
+Correlation: 0.8732
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep']
+--------------------
+Step 5:
+Added feature: direction_diff_dwd
+R-squared score: 0.7427
+MSE: 0.2358
+Correlation: 0.8742
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd']
+--------------------
+Step 6:
+Added feature: boa_MWh
+R-squared score: 0.7432
+MSE: 0.2354
+Correlation: 0.8744
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh']
+--------------------
+Step 7:
+Added feature: hour
+R-squared score: 0.7436
+MSE: 0.2350
+Correlation: 0.8747
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour']
+--------------------
+Step 8:
+Added feature: RelativeHumidity_dwd
+R-squared score: 0.7438
+MSE: 0.2341
+Correlation: 0.8752
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd']
+--------------------
+Step 9:
+Added feature: WindSpeed:100_dwd_rolling_mean_6h
+R-squared score: 0.7439
+MSE: 0.2340
+Correlation: 0.8752
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h']
+--------------------
+Step 10:
+Added feature: WindDirection_ncep
+R-squared score: 0.7439
+MSE: 0.2338
+Correlation: 0.8753
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep']
+--------------------
+Step 11:
+Added feature: WindDirection:100_ncep
+R-squared score: 0.7440
+MSE: 0.2336
+Correlation: 0.8754
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep']
+--------------------
+Step 12:
+Added feature: direction_diff_ncep
+R-squared score: 0.7441
+MSE: 0.2334
+Correlation: 0.8756
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep']
+--------------------
+Step 13:
+Added feature: RelativeHumidity_ncep
+R-squared score: 0.7441
+MSE: 0.2332
+Correlation: 0.8757
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep']
+--------------------
+Step 14:
+Added feature: WindSpeed:100_dwd_rolling_std_6h
+R-squared score: 0.7442
+MSE: 0.2331
+Correlation: 0.8757
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h']
+--------------------
+Step 15:
+Added feature: forecast_horizon
+R-squared score: 0.7441
+MSE: 0.2331
+Correlation: 0.8757
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon']
+--------------------
+Step 16:
+Added feature: humidity_model_diff
+R-squared score: 0.7441
+MSE: 0.2331
+Correlation: 0.8757
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon', 'humidity_model_diff']
+--------------------
+Step 17:
+Added feature: WindDirection_dwd
+R-squared score: 0.7441
+MSE: 0.2331
+Correlation: 0.8757
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon', 'humidity_model_diff', 'WindDirection_dwd']
+--------------------
+Step 18:
+Added feature: WindDirection:100_dwd
+R-squared score: 0.7446
+MSE: 0.2325
+Correlation: 0.8761
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon', 'humidity_model_diff', 'WindDirection_dwd', 'WindDirection:100_dwd']
+--------------------
+Step 19:
+Added feature: WindDirection:100_dwd_rolling_mean_6h
+R-squared score: 0.7446
+MSE: 0.2325
+Correlation: 0.8761
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon', 'humidity_model_diff', 'WindDirection_dwd', 'WindDirection:100_dwd', 'WindDirection:100_dwd_rolling_mean_6h']
+--------------------
+Step 20:
+Added feature: WindDirection:100_ncep_rolling_mean_6h
+R-squared score: 0.7446
+MSE: 0.2324
+Correlation: 0.8761
+Current features: ['WindSpeed:100_dwd', 'wind_power_density_100_dwd', 'WindSpeed_ncep', 'wind_power_density_100_ncep', 'direction_diff_dwd', 'boa_MWh', 'hour', 'RelativeHumidity_dwd', 'WindSpeed:100_dwd_rolling_mean_6h', 'WindDirection_ncep', 'WindDirection:100_ncep', 'direction_diff_ncep', 'RelativeHumidity_ncep', 'WindSpeed:100_dwd_rolling_std_6h', 'forecast_horizon', 'humidity_model_diff', 'WindDirection_dwd', 'WindDirection:100_dwd', 'WindDirection:100_dwd_rolling_mean_6h', 'WindDirection:100_ncep_rolling_mean_6h']
+--------------------
