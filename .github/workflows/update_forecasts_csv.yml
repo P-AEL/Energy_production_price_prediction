@@ -49,10 +49,9 @@ jobs:
       # Commit and push changes, if there are any
       - name: Commit and push CSV changes
         run: |
-          git add **/*.csv
+          git add *.csv **/*.csv
           git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
           git stash --include-untracked
           git pull --rebase origin main || git rebase --abort
           git stash pop || true
           git push origin main
-
