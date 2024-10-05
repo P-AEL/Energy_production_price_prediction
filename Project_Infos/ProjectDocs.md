@@ -95,9 +95,9 @@ Where:
 - $v$ = Wind speed (m/s)
 
 ----
-Approximating the air density using temperatur and relative humidity data
+#### Approximating the air density using temperatur and relative humidity data
 
-Tetens formula for Saturation Vapor Pressure (approximation)
+#### Step 1: Calculate Saturation Vapor Pressure $e_s$ using Tetens formula
 
 $$
 e_s\text{(kPa)} = 0.61078 \times \exp\left(\frac{17.27T}{T+237.3}\right)
@@ -112,7 +112,7 @@ $$
 e_s (\text{Pa}) = 1000 \times e_s (\text{kPa})
 $$
 
-Calculate Actual Vapor Pressure ($e$)
+#### Step 2: Calculate Actual Vapor Pressure $e$
 
 The **actual vapor pressure** is calculated by considering the **relative humidity** ($RH$):
 
