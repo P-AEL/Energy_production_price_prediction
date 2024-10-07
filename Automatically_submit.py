@@ -55,7 +55,9 @@ def Set_up_features_solar(df):
 
 def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     #create df with times
-    rebase_api_client = comp_utils.RebaseAPI(api_key = open("A-Team_key.txt").read())
+    api_key = open("team_key.txt").read()
+    api_key_stripped = api_key.strip()
+    rebase_api_client = comp_utils.RebaseAPI(api_key = api_key_stripped)
     submission_data=pd.DataFrame({"datetime":comp_utils.day_ahead_market_times()})
     #get all other dfs
     weather_data = pd.read_csv("weather_data/DWD_ICON-EU.csv")

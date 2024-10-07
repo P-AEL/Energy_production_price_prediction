@@ -2,3 +2,5 @@ pandas
 numpy
 statsmodels
 requests
+joblib
+xgboost
