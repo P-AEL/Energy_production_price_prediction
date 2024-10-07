@@ -50,7 +50,8 @@ def Set_up_features_solar(df):
     df.loc[:, 'day_of_year'] = df['datetime'].dt.dayofyear
     df.loc[:, 'cos_hour'] = np.cos(2 * np.pi * df['hour'] / 24)
     df.loc[:, 'cos_day'] = np.cos(2 * np.pi * df['day_of_year'] / 365)
-    df = df.groupby(['datetime']).mean().reset_index()
+    df = df[["datetime","Mean_SolarRadiation_dwd","Mean_Temperature_dwd","Mean_CloudCover_dwd","Solar_installedcapacity_mwp",
+             "hour","day_of_year","cos_hour","cos_day"]].groupby(['datetime']).mean().reset_index()
     return df
 
 def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
