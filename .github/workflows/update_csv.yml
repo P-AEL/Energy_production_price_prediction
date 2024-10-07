@@ -49,7 +49,7 @@ jobs:
       # Commit and push changes, if there are any
       - name: Commit and push CSV and TXT changes
         run: |
-          git add *.csv
+          git add basic_files/*.csv
           git add logs/*.txt
           git diff --cached --exit-code || git commit -m "Updated CSV and TXT files from GitHub Actions"
           git push
