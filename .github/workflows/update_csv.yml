@@ -1,8 +1,8 @@
-name: Update CSV and Forecasts from API
+name: Update CSV basic and Submit Data
 
 on:
   schedule:
-    - cron: '0 */11 * * *'  # Runs every 6 hours
+    - cron: '0 8 * * *'  # Runs every day at 8 AM
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
@@ -33,6 +33,7 @@ jobs:
       - name: Run Python scripts
         run: |
           python Update_basic_files.py
+          python Automatically_submit.py
 
       # Check which CSV files have been modified (Debugging step)
       - name: Show changed files
@@ -46,8 +47,10 @@ jobs:
 
 
       # Commit and push changes, if there are any
-      - name: Commit and push CSV changes
+      - name: Commit and push CSV and TXT changes
         run: |
           git add *.csv
-          git diff --cached --exit-code || git commit -m "Updated CSV files from GitHub Actions"
+          git add logs/*.txt
+          git diff --cached --exit-code || git commit -m "Updated CSV and TXT files from GitHub Actions"
           git push
+
