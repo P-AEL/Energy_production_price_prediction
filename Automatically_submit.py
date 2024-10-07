@@ -41,7 +41,7 @@ def Set_up_features_wind(df):
 def Set_up_features_solar(df):
     #features = ['Mean_SolarRadiation_dwd','cos_day','Solar_installedcapacity_mwp','cos_hour','Mean_Temperature_dwd','Mean_CloudCover_dwd']
     df = df.copy()  # Ensure we are working with a copy
-    df.loc[:, 'ref_datetime'] = pd.to_datetime(df['ref_datetime'])
+    # df.loc[:, 'ref_datetime'] = pd.to_datetime(df['ref_datetime'])
     df.loc[:, "Mean_SolarRadiation_dwd"] = df["SolarDownwardRadiation"]
     df.loc[:, "Mean_Temperature_dwd"] = df["Temperature"]
     df.loc[:, "Mean_CloudCover_dwd"] = df["CloudCover"]
