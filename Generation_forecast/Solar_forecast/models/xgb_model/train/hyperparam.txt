@@ -1,0 +1,43 @@
+Hier ist eine Erklärung der Hyperparameter, die beim XGBRegressor-Modell verwendet werden, und ob die angegebenen Werte gute Bereiche sind:
+
+n_estimators:
+
+    Beschreibung: Die Anzahl der Bäume im Modell. Mehr Bäume können die Modellleistung verbessern, aber auch die Trainingszeit erhöhen und das Risiko von Overfitting erhöhen.
+    Bereich: 100 bis 1000
+    Bewertung: Dies ist ein guter Bereich. Ein niedrigerer Wert kann zu einem unteranpassenden Modell führen, während ein höherer Wert die Trainingszeit erheblich verlängern kann.
+
+learning_rate:
+
+    Beschreibung: Die Lernrate bestimmt, wie stark jedes neue Modell die Fehler der vorherigen Modelle korrigiert. Eine niedrigere Lernrate erfordert mehr Bäume, um die gleiche Leistung zu erzielen.
+    Bereich: 1e-4 bis 1e-1 (logarithmische Skala)
+    Bewertung: Dies ist ein guter Bereich. Eine zu hohe Lernrate kann zu einem instabilen Modell führen, während eine zu niedrige Lernrate eine längere Trainingszeit erfordert.
+
+max_depth:
+
+    Beschreibung: Die maximale Tiefe der einzelnen Bäume. Eine größere Tiefe ermöglicht es dem Modell, komplexere Muster zu lernen, erhöht aber auch das Risiko von Overfitting.
+    Bereich: 3 bis 9
+    Bewertung: Dies ist ein guter Bereich. Eine zu geringe Tiefe kann zu einem unteranpassenden Modell führen, während eine zu große Tiefe das Risiko von Overfitting erhöht.
+
+subsample:
+
+    Beschreibung: Der Anteil der Trainingsdaten, die für das Training jedes Baumes verwendet werden. Ein Wert unter 1.0 kann helfen, Overfitting zu reduzieren.
+    Bereich: 0.2 bis 1.0
+    Bewertung: Dies ist ein guter Bereich. Ein niedrigerer Wert kann die Varianz des Modells erhöhen und Overfitting reduzieren.
+    
+colsample_bytree:
+
+    Beschreibung: Der Anteil der Merkmale, die für das Training jedes Baumes verwendet werden. Ein Wert unter 1.0 kann helfen, Overfitting zu reduzieren.
+    Bereich: 0.2 bis 1.0
+    Bewertung: Dies ist ein guter Bereich. Ein niedrigerer Wert kann die Varianz des Modells erhöhen und Overfitting reduzieren.
+
+reg_alpha (L1-Regularisierungsterm):
+
+    Beschreibung: Der L1-Regularisierungsterm. Höhere Werte führen zu einer stärkeren Regularisierung, was helfen kann, Overfitting zu reduzieren.
+    Bereich: 1e-4 bis 1e2
+    Bewertung: Dies ist ein guter Bereich. Eine zu starke Regularisierung kann jedoch zu einem unteranpassenden Modell führen.
+
+reg_lambda (L2-Regularisierungsterm):
+
+    Beschreibung: Der L2-Regularisierungsterm. Höhere Werte führen zu einer stärkeren Regularisierung, was helfen kann, Overfitting zu reduzieren.
+    Bereich: 1e-4 bis 1e2
+    Bewertung: Dies ist ein guter Bereich. Eine zu starke Regularisierung kann jedoch zu einem unteranpassenden Modell führen.
