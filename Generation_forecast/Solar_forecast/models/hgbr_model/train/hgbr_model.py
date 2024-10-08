@@ -37,11 +37,9 @@ y_train = train_df["Solar_MWh_credit"]
 X_test = test_df.drop(columns=["Solar_MWh_credit", "valid_time"])
 y_test = test_df["Solar_MWh_credit"]
 
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-
+ 
+ 
 def objective(trial, alpha):
     """
     Objective function for the Optuna optimization. Trains a Gradient Boosting Regressor model with the given hyperparameters.
