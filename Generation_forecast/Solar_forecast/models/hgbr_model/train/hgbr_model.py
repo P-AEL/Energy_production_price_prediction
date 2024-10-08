@@ -3,7 +3,7 @@ import sys
 import logging
 import optuna
 from optuna.trial import TrialState
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_pinball_loss
 from sklearn.model_selection import train_test_split
 import pandas as pd
@@ -44,9 +44,9 @@ def objective(trial, alpha):
     min_samples_leaf = trial.suggest_int("min_samples_leaf", 1, 40)
     l2_regularization = trial.suggest_float("l2_regularization", 0.0, 1.0)
 
-    model = HistGradientBoostingClassifier(
+    model = HistGradientBoostingRegressor(
         loss="quantile",
-        alpha=alpha,
+        quantile=alpha,
         max_iter=max_iter,
         max_depth=max_depth,
         learning_rate=learning_rate,
@@ -97,9 +97,9 @@ if __name__ == "__main__":
         best_params[alpha] = trial.params
 
         # Train the best model with the best hyperparameters
-        best_model = HistGradientBoostingClassifier(
+        best_model = HistGradientBoostingRegressor(
             loss="quantile",
-            alpha=alpha,
+            quantile=alpha,
             max_iter=trial.params["max_iter"],
             max_depth=trial.params["max_depth"],
             learning_rate=trial.params["learning_rate"],
