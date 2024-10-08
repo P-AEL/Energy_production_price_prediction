@@ -20,10 +20,22 @@ MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/mo
 # Load data
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
-df = df.drop(columns=["Unnamed: 0"])   
-df = df.dropna()
-X = df.drop(columns=["Solar_MWh_credit", "valid_time"])
-y = df["Solar_MWh_credit"]
+df = df.drop(columns=["Unnamed: 0"])
+df['valid_time'] = pd.to_datetime(df['valid_time'])
+df = df.sort_values(by='valid_time')
+
+# Define the split dates
+start_date = '2024-05-01'
+end_date = '2024-05-02'
+
+# Split data
+train_df = df[df['valid_time'] < start_date]
+test_df = df[(df['valid_time'] >= start_date) & (df['valid_time'] <= end_date)]
+
+X_train = train_df.drop(columns=["Solar_MWh_credit", "valid_time"])
+y_train = train_df["Solar_MWh_credit"]
+X_test = test_df.drop(columns=["Solar_MWh_credit", "valid_time"])
+y_test = test_df["Solar_MWh_credit"]
 
 # Split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -80,6 +92,12 @@ if __name__ == "__main__":
     # Get the iteration number from an environment variable or default to 1
     iteration = int(os.getenv("ITERATION", 1))
 
+    # Create iteration-specific directories
+    iteration_logs_path = os.path.join(FILEPATH_STUDY, f"i{iteration}_logs")
+    iteration_models_path = os.path.join(MODEL_SAVE_PATH, f"i{iteration}_models")
+    os.makedirs(iteration_logs_path, exist_ok=True)
+    os.makedirs(iteration_models_path, exist_ok=True)
+
     best_params = {}
     all_trials = []
 
@@ -94,6 +112,9 @@ if __name__ == "__main__":
         for key, value in trial.params.items():
             logging.info(f"    {key}: {value}")
 
+        # Save the best hyperparameters for the current alpha
+        trial.params["alpha"] = alpha
+        trial.params["loss"] = trial.value
         best_params[alpha] = trial.params
 
         # Train the best model with the best hyperparameters
@@ -114,7 +135,8 @@ if __name__ == "__main__":
         best_model.fit(X_train, y_train)
 
         # Save the best model with iteration in the filename
-        model_filename = os.path.join(MODEL_SAVE_PATH, f"bm_q_{alpha}_iter_{iteration}.pkl")
+        alpha_str = str(alpha).replace("0.", "q")
+        model_filename = os.path.join(iteration_models_path, f"hgbr_{alpha_str}.pkl")
         joblib.dump(best_model, model_filename)
         logging.info(f"Saved best model for alpha {alpha} to {model_filename}")
 
@@ -124,11 +146,11 @@ if __name__ == "__main__":
         all_trials.append(trials_df)
 
     # Save the best hyperparameters for each quantile
-    best_params_filename = os.path.join(FILEPATH_STUDY, f"b_params_iter_{iteration}.csv")
+    best_params_filename = os.path.join(FILEPATH_STUDY, f"best_params.csv")
     best_params_df = pd.DataFrame(best_params).T
     best_params_df.to_csv(best_params_filename, index= False)
 
     # Combine all trials dataframes and save to a CSV file
-    combined_trials_filename = os.path.join(FILEPATH_STUDY, f"trials_iter_{iteration}.csv")
+    combined_trials_filename = os.path.join(FILEPATH_STUDY, f"trials.csv")
     combined_trials_df = pd.concat(all_trials, ignore_index=True)
     combined_trials_df.to_csv(combined_trials_filename, index=False)
