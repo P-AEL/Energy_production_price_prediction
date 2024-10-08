@@ -32,6 +32,14 @@ alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 # Custom pinball loss function
 def custom_pinball_loss(y_true, y_pred):
+    """
+    Custom pinball loss function for XGBoost. The loss function is defined as:
+    L(y_true, y_pred) = alpha * (y_true - y_pred) if y_true >= y_pred else (alpha - 1) * (y_true - y_pred)
+
+    args:   y_true: np.array, the true target values
+            y_pred: np.array, the predicted target values
+    returns: np.array, the loss value for each sample
+    """
     y_true = y_true.get_label() if hasattr(y_true, 'get_label') else y_true
     delta = y_pred - y_true
     grad = np.where(delta >= 0, alpha, alpha-1)
@@ -66,12 +74,14 @@ def objective(trial, alpha):
         reg_lambda=reg_lambda,
         random_state=0,
         tree_method="hist",
-        objective=custom_pinball_loss,
+        objective= custom_pinball_loss
+        #eval_metric=mean_pinball_loss,
+        #early_stopping_rounds=10
     )
 
-    model.fit(X_train, y_train, eval_set=[(X_test, y_test)], eval_metric= mean_pinball_loss, early_stopping_rounds=10, verbose=False)
+    model.fit(X_train, y_train, verbose= False) # eval_set=[(X_test, y_test)] verbose= False)
     y_pred = model.predict(X_test)
-    loss = mean_pinball_loss(y_test, y_pred, alpha)
+    loss = mean_pinball_loss(y_test, y_pred, alpha=alpha)
     
     # Log the step, loss and alpha
     logging.info(f"Trial {trial.number} - Alpha: {alpha}, Loss: {loss}, Params: {trial.params}")
@@ -100,7 +110,7 @@ if __name__ == "__main__":
         trial = study.best_trial
         logging.info(f"Best trial for alpha {alpha}:")
         logging.info(f"  Value: {trial.value}")
-        logging.info(f"  Params: {trial.params}")
+        logging.info(f"  Params: ")
         for key, value in trial.params.items():
             logging.info(f"    {key}: {value}")
 
