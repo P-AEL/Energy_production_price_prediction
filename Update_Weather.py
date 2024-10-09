@@ -72,7 +72,11 @@ def Update(model_to_update,to_mean=None):
                 new_df['longitude'] = lons[point]
                 all_new_dfs.append(new_df)
             combined_new_df = pd.concat(all_new_dfs)
+            combined_new_df["WindSpeed"] = combined_new_df["WindSpeed"] * combined_new_df["WindSpeed"] * combined_new_df["WindSpeed"]
+            combined_new_df["WindSpeed:100"] = combined_new_df["WindSpeed:100"] * combined_new_df["WindSpeed:100"] * combined_new_df["WindSpeed:100"]
             grouped_df = combined_new_df.groupby(['valid_datetime', 'ref_datetime']).mean().reset_index()
+            grouped_df["WindSpeed"] = grouped_df["WindSpeed"] ** (1/3)
+            grouped_df["WindSpeed:100"] = grouped_df["WindSpeed:100"] ** (1/3)
             df = pd.concat([df, grouped_df])
         else:
             for point in range(len(response.json())):
