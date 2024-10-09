@@ -35,4 +35,4 @@
 | Prophet                                     |          |      |
 | Exponential Smoothing State Space Model (ETS)|          |      |
 | Kalman Filter / Bayesian State Space Model  |          |      |
-| Transformer / LSTM                          |          |      |
+| MLP / RNN / LSTM                          |          |      |
