@@ -178,7 +178,7 @@ $$
 3. **Power Available in the Wind**:
 
 $$
-P_{\text{wind}} = \frac{1}{2} \times 1.225 \times 18,626 \times 12^3 = 25.064 \times 10^6 \, \text{W} = 25.064 \, \text{MW}
+P_{\text{wind}} = \frac{1}{2} \times 1.225 \times 18,626 \times 13^3 = 25.064 \times 10^6 \, \text{W} = 25.064 \, \text{MW}
 $$
 
 4. **Approximating the real efficiency of the Turbine**:
@@ -202,27 +202,22 @@ So, at a wind speed of **13 m/s**, this turbine would run at approximately **28%
 
 Using these numbers, the following windspeed-generation plot can be created based on an average air density of 1.225kg/m³
 ​
-![image info](..\Generation_forecast\Wind_forecast\images\first_power_curve_approximation_plot.png)
+![image info](..\Generation_forecast\Wind_forecast\images\power_curve_11_0.28_sealevel.png)
+![image info](..\Generation_forecast\Wind_forecast\images\power_curve_11_0.28_100m.png)
 
-Its easy to see that max power is achieved earlier at approximately 11m/s. Based on that, a new approximation for the system efficiency is calculated.
+Its easy to see that calculation based on the projected WindSpeed at 100m aligns much better with the real data than based on the WindSpeed data at sealevel.
+But in the mid range of the wind speeds, the forecast based on the calculation is too low.
 
-$$
-P_{\text{wind}} = \frac{1}{2} \times 1.225 \times 18,626 \times 11^3 = 25.064 \times 10^6 \, \text{W} = 15.184 \, \text{MW}
-$$
+As a result of this discrepancy we assume that the maximum power output of the turbine is actually a achieved earlier than 13 which means that the efficiency is slightly higher than the initially calculated value.
 
-$$
-C_p \times \eta_{\text{generator}} \times  \eta_{\text{conversion}} \times \cdots ≈\frac{7\text{MW}}{15.184\text{MW}} ≈ 0.46 
-$$
+Therefore, we search for a total efficiency $\eta$ that minimizes the error on our dataset using the WindSpeed:100 data.
+This number comes out at ≈ 0.334 which will be used from now on as the efficiency of the turbine.
 
-Although this efficiency number is very high and at an high end of the industry efficiency standards, we will use it because it describes our data the best
+The updated plot based on WindSpeed:100_dwd unsurprisingly fits the trend of our data really well.
 
-![image info](..\Generation_forecast\Wind_forecast\images\second_power_curve_approximation_plot.png)
+![image info](..\Generation_forecast\Wind_forecast\images\power_curve_12.2_0.334_100m.png)
 
-This curve fits the real data much better than the previous one but it is still easily visible that it requires some refinement.
-
-Idea:
-
-Combine this baseline approximation of the generated power with a machine learning model for the quantiles based on additional features
+A left over issue is that the maximum of the forecast is too high.
 
 ### Power generation forecast using machine learning models
 
