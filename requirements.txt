@@ -5,3 +5,4 @@ requests
 joblib
 xgboost
 torch
+scikit-learn
