@@ -2,7 +2,7 @@ name: Update CSV basic and Submit Data
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Runs every day at 7 AM
+    - cron: '15 6 * * *'  # Runs every day at 7 AM
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
