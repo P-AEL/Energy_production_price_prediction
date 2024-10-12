@@ -92,27 +92,23 @@ if __name__ == "__main__":
         for key, value in trial.params.items():
             logging.info(f"    {key}: {value}")
 
-        # Save the best hyperparameters for the current alpha
-        trial.params["alpha"] = alpha
-        trial.params["loss"] = trial.value
-        best_params[alpha] = trial.params
-
         # Train the best model with the best hyperparameters
         best_model = HistGradientBoostingRegressor(
             loss="quantile",
             quantile=alpha,
-            max_iter=trial.params["max_iter"],
-            max_depth=trial.params["max_depth"],
-            learning_rate=trial.params["learning_rate"],
-            min_samples_leaf=trial.params["min_samples_leaf"],
-            l2_regularization=trial.params["l2_regularization"],
             random_state=0,
             early_stopping=True,
             validation_fraction=0.1,
-            tol=0.01
+            tol=0.01,
+            **trial.params
         )
-        
+
         best_model.fit(X_train, y_train)
+
+        # Save the best hyperparameters for the current alpha
+        trial.params["alpha"] = alpha
+        trial.params["loss"] = trial.value
+        best_params[alpha] = trial.params
 
         # Save the best model with iteration in the filename
         alpha_str = str(alpha).replace("0.", "q")

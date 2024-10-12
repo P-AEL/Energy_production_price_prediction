@@ -110,30 +110,24 @@ if __name__ == "__main__":
         for key, value in trial.params.items():
             logging.info(f"    {key}: {value}")
 
+        # Train the best model with the best hyperparameters
+        best_model = XGBRegressor(
+            objective=custom_pinball_loss,
+            random_state=0,
+            tree_method="hist",
+            **trial.params
+        )
+
+        best_model.fit(X_train, y_train)
+
         # Save the best hyperparameters for the current alpha
         trial.params["alpha"] = alpha
         trial.params["loss"] = trial.value
         best_params[alpha] = trial.params
 
-        # Train the best model with the best hyperparameters
-        best_model = XGBRegressor(
-            n_estimators=trial.params["n_estimators"],
-            learning_rate=trial.params["learning_rate"],
-            max_depth=trial.params["max_depth"],
-            subsample=trial.params["subsample"],
-            colsample_bytree=trial.params["colsample_bytree"],
-            reg_alpha=trial.params["reg_alpha"],
-            reg_lambda=trial.params["reg_lambda"],
-            random_state=42,
-            tree_method="hist",
-            objective=custom_pinball_loss,
-        )
-
-        best_model.fit(X_train, y_train)
-
         # Save the best model with iteration in the filename
         alpha_str = str(alpha).replace("0.", "q")
-        model_filename = os.path.join(iteration_models_path, f"xgb_{alpha_str}.pkl")
+        model_filename = os.path.join(iteration_models_path, f"xgbr_{alpha_str}.pkl")
         joblib.dump(best_model, model_filename)
         logging.info(f"Saved best model for alpha {alpha} to {model_filename}")
 
