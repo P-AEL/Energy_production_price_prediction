@@ -38,7 +38,9 @@ current_dir = os.getcwd()
 
 path_df = os.path.abspath(os.path.join(current_dir, '..', 'basic_files'))
 df_total_solar = pd.read_csv(os.path.join(path_df, 'solar_total_production.csv'))
+df_total_solar.generation_mw = df_total_solar.generation_mw *0.5
 df_total_wind = pd.read_csv(os.path.join(path_df, 'wind_total_production.csv'))
+df_total_wind.generation_mw = df_total_wind.generation_mw *0.5 - df_total_wind.boa
 df_imbalance_price = pd.read_csv(os.path.join(path_df, 'imbalance_price.csv'))
 df_day_ahead_price = pd.read_csv(os.path.join(path_df, 'day_ahead_price.csv'))
 
@@ -62,10 +64,10 @@ for i in range(len(data)):
 st.set_page_config(page_title="My Streamlit Dashboard")
 
 # Add a title
-st.title("Welcome to My Streamlit Dashboard")
+st.title("Energy Forecasting Dashboard")
 
 # Add some text
-st.write("This is a simple dashboard created with Streamlit.")
+st.write("Quantile forecast for energy production")
 
 
 # Use enumerate to create index-value pairs
@@ -120,6 +122,83 @@ try:
 except:
     st.write("No data available for selected date")
 
-
-
 st.write(f"market_bid: {market_bid}")
+
+#plot for revenue
+try:
+    revenues = []
+    for date in options_submissions:
+        selected_index_submissions_rev, selected_date_submissions_rev = date
+        market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["market_bid"]
+        selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
+        solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
+        day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        revenues.append(Revenue)
+    df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
+    fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
+    st.plotly_chart(fig_revenue)
+    #day average
+    st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
+    
+
+except:
+    st.write("No data available for selected date")
+
+#plot for loss
+try:
+    losses = []
+    for date in options_submissions:
+        selected_index_submissions_rev, selected_date_submissions_rev = date
+        market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["market_bid"]
+        selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
+        solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
+        day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        loss = pinball_loss(probabilistic_forecast, real_value)
+        losses.append(loss)
+    df_loss = pd.DataFrame(losses, columns=['Loss'])
+    fig_loss = px.line(df_loss,x=submissions, y='Loss', title='Pinnball_Loss_over_day')
+    st.plotly_chart(fig_loss)
+    #day average
+    st.write(f"Average Loss: {df_loss['Loss'].mean()}")
+
+except:
+    st.write("No data available for selected date")
+
+#plot for market_bid
+try:
+    market_bids = []
+    for date in options_submissions:
+        selected_index_submissions_rev, selected_date_submissions_rev = date
+        market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["market_bid"]
+        market_bids.append(market_bid)
+    df_market_bid = pd.DataFrame(market_bids, columns=['Market_bid'])
+    fig_market_bid = px.line(df_market_bid,x=submissions, y='Market_bid', title='Market_bid_over_day')
+    st.plotly_chart(fig_market_bid)
+
+except:
+    st.write("No data available for selected date")
+
+#plot for real_value
+try:
+    real_values = []
+    for date in options_submissions:
+        selected_index_submissions_rev, selected_date_submissions_rev = date
+        selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
+        solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
+        real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
+        real_values.append(real_value)
+    df_real_value = pd.DataFrame(real_values, columns=['Real_value'])
+    fig_real_value = px.line(df_real_value,x=submissions, y='Real_value', title='Real_total_production_over_day')
+    st.plotly_chart(fig_real_value)
+
+except:
+    st.write("No data available for selected date")
