@@ -219,6 +219,8 @@ The updated plot based on WindSpeed:100_dwd unsurprisingly fits the trend of our
 
 A left over issue is that the maximum of the forecast is too high.
 
+The Output of the Hornsea-1 windfarm got reduced in January 2024 (max output ~600W). On February 25th 2024 it was increased again to a higher level (max output ~800MW). Its back to maximum power since 2024-xx-xx
+
 ### Power generation forecast using machine learning models
 
 
