@@ -1,6 +1,7 @@
 import os 
 import logging
 import optuna
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_pinball_loss
 from xgboost import XGBRegressor
 import numpy as np
@@ -12,29 +13,17 @@ logging.basicConfig(level=logging.INFO)
 
 # Set paths
 BASE_PATH = os.getenv('BASE_PATH', "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/")
-DATA_PATH = os.path.join(BASE_PATH, "HEFTcom24/data/features.csv")
-FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/xgb_model/logs")
-MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/xgb_model/models")
+DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train.csv")
+FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/xgbr_model/logs")
+MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/xgbr_model/models")
 
 # Load data
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
-df = df.drop(columns=["Unnamed: 0"])
-df['valid_time'] = pd.to_datetime(df['valid_time'])
-df = df.sort_values(by='valid_time')
 
-# Define the split dates
-start_date = '2024-05-01'
-end_date = '2024-05-02'
-
-# Split data
-train_df = df[df['valid_time'] < start_date]
-test_df = df[(df['valid_time'] >= start_date) & (df['valid_time'] <= end_date)]
-
-X_train = train_df.drop(columns=["Solar_MWh_credit", "valid_time"])
-y_train = train_df["Solar_MWh_credit"]
-X_test = test_df.drop(columns=["Solar_MWh_credit", "valid_time"])
-y_test = test_df["Solar_MWh_credit"]
+X = df.drop(columns= "Solar_MWh_credit")
+y = df["Solar_MWh_credit"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.2, random_state= 0)
 
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
@@ -64,31 +53,23 @@ def objective(trial, alpha):
             alpha: float, the quantile to be used in the loss function        
     returns: float
     """
-    n_estimators = trial.suggest_int("n_estimators", 100, 1000)
-    learning_rate = trial.suggest_float("learning_rate", 1e-4, 1e-1, log=True)
-    max_depth = trial.suggest_int("max_depth", 3, 9)
-    subsample = trial.suggest_float("subsample", 0.2, 1.0)
-    colsample_bytree = trial.suggest_float("colsample_bytree", 0.2, 1.0)
-    reg_alpha = trial.suggest_float("reg_alpha", 1e-4, 1e1)
-    reg_lambda = trial.suggest_float("reg_lambda", 1e-4, 1e1)
+    params= {
+        "n_estimators": trial.suggest_int("n_estimators", 100, 1000),
+        "learning_rate": trial.suggest_float("learning_rate", 1e-4, 1e-1),
+        "max_depth": trial.suggest_int("max_depth", 3, 9),
+        "subsample": trial.suggest_float("subsample", 0.2, 1.0),
+        "colsample_bytree": trial.suggest_float("colsample_bytree", 0.2, 1.0),
+        "reg_alpha": trial.suggest_float("reg_alpha", 1e-4, 1e1),
+        "reg_lambda": trial.suggest_float("reg_lambda", 1e-4, 1e1),
+        "tree_method": "hist",
+        "random_state": 0,
+        "objective": custom_pinball_loss
+    }
     
     # Train xgb model
-    model = XGBRegressor(
-        n_estimators=n_estimators,
-        learning_rate=learning_rate,
-        max_depth=max_depth,
-        subsample=subsample,
-        colsample_bytree=colsample_bytree,
-        reg_alpha=reg_alpha,
-        reg_lambda=reg_lambda,
-        random_state=0,
-        tree_method="hist",
-        objective= custom_pinball_loss
-        #eval_metric=mean_pinball_loss,
-        #early_stopping_rounds=10
-    )
+    model = XGBRegressor(**params)
+    model.fit(X_train, y_train, verbose= False)
 
-    model.fit(X_train, y_train, verbose= False) # eval_set=[(X_test, y_test)] verbose= False)
     y_pred = model.predict(X_test)
     loss = mean_pinball_loss(y_test, y_pred, alpha=alpha)
     

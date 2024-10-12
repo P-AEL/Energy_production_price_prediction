@@ -2,7 +2,6 @@ import os
 import sys
 import logging
 import optuna
-from optuna.trial import TrialState
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_pinball_loss
 from sklearn.model_selection import train_test_split
@@ -13,33 +12,21 @@ logging.basicConfig(level=logging.INFO)
 
 # Set paths
 BASE_PATH = os.getenv('BASE_PATH', "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
-DATA_PATH = os.path.join(BASE_PATH, "HEFTcom24/data/features.csv")
+DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train.csv")
 FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/hgbr_model/logs")
 MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/hgbr_model/models")
 
 # Load data
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
-df = df.drop(columns=["Unnamed: 0"])
-df['valid_time'] = pd.to_datetime(df['valid_time'])
-df = df.sort_values(by='valid_time')
 
-# Define the split dates
-start_date = '2024-05-01'
-end_date = '2024-05-02'
-
-# Split data
-train_df = df[df['valid_time'] < start_date]
-test_df = df[(df['valid_time'] >= start_date) & (df['valid_time'] <= end_date)]
-
-X_train = train_df.drop(columns=["Solar_MWh_credit", "valid_time"])
-y_train = train_df["Solar_MWh_credit"]
-X_test = test_df.drop(columns=["Solar_MWh_credit", "valid_time"])
-y_test = test_df["Solar_MWh_credit"]
+X = df.drop(columns= "Solar_MWh_credit")
+y = df["Solar_MWh_credit"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.2, random_state= 0)
 
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
- 
- 
+
+
 def objective(trial, alpha):
     """
     Objective function for the Optuna optimization. Trains a Gradient Boosting Regressor model with the given hyperparameters.
@@ -48,26 +35,21 @@ def objective(trial, alpha):
             alpha: float, the quantile to be used in the loss function
     returns: float
     """
-    max_iter = trial.suggest_int("max_iter", 100, 1000)
-    max_depth = trial.suggest_int("max_depth", 3, 20)
-    learning_rate = trial.suggest_float("learning_rate", 0.01, 0.1, log=True)
-    min_samples_leaf = trial.suggest_int("min_samples_leaf", 1, 40)
-    l2_regularization = trial.suggest_float("l2_regularization", 0.0, 1.0)
+    params = {
+        "loss": "quantile",
+        "quantile": alpha,
+        "max_iter": trial.suggest_int("max_iter", 100, 1000),
+        "max_depth": trial.suggest_int("max_depth", 3, 20),
+        "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
+        "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 40),
+        "l2_regularization": trial.suggest_float("l2_regularization", 0.0, 1.0),
+        "random_state": 0,
+        "early_stopping": True,
+        "validation_fraction": 0.1,
+        "tol": 0.01
+    }
 
-    model = HistGradientBoostingRegressor(
-        loss="quantile",
-        quantile=alpha,
-        max_iter=max_iter,
-        max_depth=max_depth,
-        learning_rate=learning_rate,
-        min_samples_leaf=min_samples_leaf,
-        l2_regularization=l2_regularization,
-        random_state=0,
-        early_stopping=True,
-        validation_fraction=0.1,
-        tol=0.01
-    )
-    
+    model = HistGradientBoostingRegressor(**params)
     model.fit(X_train, y_train)
     
     y_pred = model.predict(X_test)
@@ -144,11 +126,11 @@ if __name__ == "__main__":
         all_trials.append(trials_df)
 
     # Save the best hyperparameters for each quantile
-    best_params_filename = os.path.join(FILEPATH_STUDY, f"best_params.csv")
+    best_params_filename = os.path.join(iteration_logs_path, f"best_params.csv")
     best_params_df = pd.DataFrame(best_params).T
     best_params_df.to_csv(best_params_filename, index= False)
 
     # Combine all trials dataframes and save to a CSV file
-    combined_trials_filename = os.path.join(FILEPATH_STUDY, f"trials.csv")
+    combined_trials_filename = os.path.join(iteration_logs_path, f"trials.csv")
     combined_trials_df = pd.concat(all_trials, ignore_index=True)
     combined_trials_df.to_csv(combined_trials_filename, index=False)

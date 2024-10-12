@@ -22,8 +22,7 @@
 | Temperature_dwd_Mean                       | Durchschnittliche Temperatur (DWD)         | [-∞, ∞)       |
 | sin_hour                                   | Sinus des Stundenwerts                     | [-1, 1]       |
 | cos_hour                                   | Kosinus des Stundenwerts                   | [-1, 1]       |
-| sin_day                                    | Sinus des Tageswerts                       | [-1, 1]       |
-| cos_day                                    | Kosinus des Tageswerts                     | [-1, 1]       |
+
 
 ## Models
 
@@ -33,6 +32,7 @@
 | GradientBoostingRegressor (sklearn)         | gerade dabei|       |
 | XGBoost / LightGBM                          |          |      |
 | Prophet                                     |          |      |
-| Exponential Smoothing State Space Model (ETS)|          |      |
-| Kalman Filter / Bayesian State Space Model  |          |      |
-| MLP / RNN / LSTM                          |          |      |
+| Random Forest                               |          |      |
+| Kalman Filter / Bayesian State Space Model / Exponential Smoothing State Space Model (ETS) |          |      |
+| MLP / RNN / LSTM / TFT                         |          |      |
+
