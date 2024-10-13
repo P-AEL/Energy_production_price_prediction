@@ -38,9 +38,9 @@ current_dir = os.getcwd()
 
 path_df = os.path.abspath(os.path.join(current_dir, '..', 'basic_files'))
 df_total_solar = pd.read_csv(os.path.join(path_df, 'solar_total_production.csv'))
-df_total_solar.generation_mw = df_total_solar.generation_mw *0.5
+# df_total_solar.generation_mw = df_total_solar.generation_mw *0.5
 df_total_wind = pd.read_csv(os.path.join(path_df, 'wind_total_production.csv'))
-df_total_wind.generation_mw = df_total_wind.generation_mw *0.5 - df_total_wind.boa
+# df_total_wind.generation_mw = df_total_wind.generation_mw *0.5 - df_total_wind.boa
 df_imbalance_price = pd.read_csv(os.path.join(path_df, 'imbalance_price.csv'))
 df_day_ahead_price = pd.read_csv(os.path.join(path_df, 'day_ahead_price.csv'))
 

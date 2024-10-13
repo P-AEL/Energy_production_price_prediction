@@ -70,8 +70,8 @@ def Set_up_features_wind(wind_df,submission_data):
     R_v = 461.5   # Specific gas constant for water vapor (J/(kg·K))
     p = 101325    # Standard atmospheric pressure in Pa
     # Calculate saturation vapor pressure (using temperature in Celsius), Tetens formula
-    wind_df['Temperature_K'] = wind_df['Temperature'] - 273.15
-    e_s = 0.61078 * np.exp((17.27 * (wind_df['Temperature']-273.15)) / (wind_df['Temperature'] -35.85))
+    wind_df['Temperature_K'] = wind_df['Temperature'] + 273.15
+    e_s = 0.61078 * np.exp((17.27 * (wind_df['Temperature'])) / (wind_df['Temperature'] +237.3))
     # in pa
     e_s = 1000 * e_s
     # Calculate actual vapor pressure
@@ -79,7 +79,8 @@ def Set_up_features_wind(wind_df,submission_data):
     wind_df['AirDensity'] = (p - e) / (R_d * wind_df['Temperature_K']) + (e / (R_v * wind_df['Temperature_K']))
     # Turbine stats
     rotor_diameter = 154  # in meters
-    approximated_total_efficiency = 0.31  # 31% efficiency
+    approximated_total_efficiency = 0.348
+    limiter = 0.94
     minimum_wind_speed = 3  # in m/s
     maximum_wind_speed_for_power_curve = 12.5  # in m/s
     maximum_wind_speed_for_operation = 25  # in m/s
@@ -90,19 +91,19 @@ def Set_up_features_wind(wind_df,submission_data):
 
     # Calculating the Generated power
     wind_df['WindPower'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower'] = np.minimum(wind_df['WindPower'], maximum_power_per_turbine * 174 / approximated_total_efficiency)
+    wind_df['UsableWindPower'] = np.minimum(wind_df['WindPower'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
     # depending on the wind speed, the power output is limited to the maximum power output of the turbine or 0
     wind_df['PowerOutput'] = np.where((wind_df['WindSpeed'] >= minimum_wind_speed) & (wind_df['WindSpeed'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
 
     # Same for 100m
     wind_df['WindPower:100'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed:100'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower:100'] = np.minimum(wind_df['WindPower:100'], maximum_power_per_turbine * 174 / approximated_total_efficiency)
+    wind_df['UsableWindPower:100'] = np.minimum(wind_df['WindPower:100'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
     wind_df['PowerOutput:100'] = np.where((wind_df['WindSpeed:100'] >= minimum_wind_speed) & (wind_df['WindSpeed:100'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower:100'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
 
     # Same for full
     wind_df['WindSpeed_full_avg'] = (wind_df['WindSpeed'] + wind_df['WindSpeed:100']) / 2
     wind_df['WindPower_full'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed_full_avg'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower_full'] = np.minimum(wind_df['WindPower_full'], maximum_power_per_turbine * 174 / approximated_total_efficiency)
+    wind_df['UsableWindPower_full'] = np.minimum(wind_df['WindPower_full'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
     wind_df['PowerOutput_full'] = np.where((wind_df['WindSpeed_full_avg'] >= minimum_wind_speed) & (wind_df['WindSpeed_full_avg'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower_full'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
     return pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
 
@@ -166,7 +167,7 @@ def Set_up_features_solar(solar_df,submission_data):
     solar_df_merged["Panel_Temperature_dwd_std"] = solar_df_merged.filter(regex= r"Panel_Temperature.*").std(axis= 1)
     solar_df_merged["Panel_Efficiency_dwd_std"] = solar_df_merged.filter(regex= r"Panel_Efficiency.*").std(axis= 1)
     solar_df_merged["solar_mw_lag_48h"] = solar_df_merged.generation_mw.shift(periods= 96)
-    solar_df_merged["capacity_mwp"] = solar_df_merged.capacity_mwp.shift(periods= 96)
+    solar_df_merged["capacity_mwp_lag_48h"] = solar_df_merged.capacity_mwp.shift(periods= 96)
     solar_df_merged = pd.merge(solar_df_merged, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
     return solar_df_merged
 
@@ -212,7 +213,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             "Std_Temperature",
             "Mean_Temperature",
             "cos_hour",
-            "cos_day_of_year","solar_mw_lag_48h","capacity_mwp"]]
+            "cos_day_of_year","solar_mw_lag_48h","capacity_mwp_lag_48h"]]
         scaler = pickle.load(open('paul_analyse/scaler.pkl', 'rb'))
         solar_df = scaler.transform(solar_df)
         model = MLP(input_dim=solar_df.shape[1])
