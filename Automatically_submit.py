@@ -192,6 +192,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         for i,quantile in enumerate(quantiles):
             predictions = wind_df.PowerOutput_full * (1+ (i-4)*0.05)
             wind_df.loc[:, quantile] = predictions
+            print(f"Predicted {predictions} ")
     else:
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for quantile in quantiles:
