@@ -270,4 +270,4 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="Generation_forecast/Wind_forecast\models/gbr_quantile_0.",model_solar_strom="paul_analyse/model1.pth",model_bid=None)
+    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="paul_analyse/model1.pth",model_bid=None)
