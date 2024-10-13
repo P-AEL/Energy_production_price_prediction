@@ -9,7 +9,7 @@ import os
 from datetime import datetime, timedelta
 import pickle as pkl
 import joblib
-from xgboost import XGBRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor  # Dies ist nur für die Typisierung notwendig
 import torch
 import torch.nn as nn
 import pickle
@@ -102,9 +102,22 @@ def Set_up_features_wind(wind_df,submission_data):
 
     # Same for full
     wind_df['WindSpeed_full_avg'] = (wind_df['WindSpeed'] + wind_df['WindSpeed:100']) / 2
-    wind_df['WindPower_full'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed_full_avg'] ** 3 * 174 / 1000000
+    wind_df['WindPower_full'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed:100'] ** 3 * 174 / 1000000
     wind_df['UsableWindPower_full'] = np.minimum(wind_df['WindPower_full'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
-    wind_df['PowerOutput_full'] = np.where((wind_df['WindSpeed_full_avg'] >= minimum_wind_speed) & (wind_df['WindSpeed_full_avg'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower_full'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
+    wind_df['PowerOutput_full'] = np.where((wind_df['WindSpeed:100'] >= minimum_wind_speed) & (wind_df['WindSpeed:100'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower_full'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
+
+    # wind_df["Temperature_avg"] = (wind_df["Temperature"] + wind_df["Temperature:100"]) / 2
+    # wind_df["RelativeHumidity_avg"] = (wind_df["RelativeHumidity"] + wind_df["RelativeHumidity:100"]) / 2
+    wind_df["Temperature_avg"] = wind_df["Temperature"]
+    wind_df["RelativeHumidity_avg"] = wind_df["RelativeHumidity"]   
+    wind_df["WindSpeed:100_dwd_lag1"] = wind_df["WindSpeed:100"].shift(1)
+    wind_df["WindSpeed:100_dwd_lag2"] = wind_df["WindSpeed:100"].shift(2)
+    wind_df["WindSpeed:100_dwd_lag3"] = wind_df["WindSpeed:100"].shift(3)
+    wind_df["UsableWindPower_opt"] = wind_df.UsableWindPower_full
+    wind_df["WindSpeed:100_dwd"] = wind_df["WindSpeed:100"].shift(1)
+    # print(wind_df)
+    # print(pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner'))
+
     return pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
 
 def resample_and_interpolate(group):
@@ -190,7 +203,13 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         #load xgboost model based on pickle path model_wind_stom
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for i,quantile in enumerate(quantiles):
-            predictions = wind_df.PowerOutput_full * (1+ (i-4)*0.05)
+            with open(f"{model_wind_stom}{i+1}.pkl", "rb") as f:
+                model = load_pickle1(f)
+            if not hasattr(model, '_preprocessor'):
+                model._preprocessor = None
+            df_to_predict = wind_df[["WindSpeed:100_dwd","Temperature_avg","RelativeHumidity_avg","AirDensity","UsableWindPower_opt","WindSpeed:100_dwd_lag1","WindSpeed:100_dwd_lag2","WindSpeed:100_dwd_lag3"]]
+            residuals = model.predict(df_to_predict)
+            predictions = wind_df.PowerOutput_full + residuals
             wind_df.loc[:, quantile] = predictions
             print(f"Predicted {predictions} ")
     else:
@@ -251,4 +270,4 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="paul_analyse/xgboost_regressor_model_",model_solar_strom="paul_analyse/model1.pth",model_bid=None)
+    Update(model_wind_stom="Generation_forecast/Wind_forecast\models/gbr_quantile_0.",model_solar_strom="paul_analyse/model1.pth",model_bid=None)
