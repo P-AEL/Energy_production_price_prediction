@@ -10,35 +10,8 @@ from datetime import datetime, timedelta
 import pickle as pkl
 import joblib
 from sklearn.ensemble import HistGradientBoostingRegressor  # Dies ist nur für die Typisierung notwendig
-import torch
-import torch.nn as nn
 import pickle
-
-# Define the MLP model
-class MLP(nn.Module):
-    def __init__(self, input_dim):
-        super(MLP, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 256)
-        self.fc3 = nn.Linear(256, 512)
-        self.fc4 = nn.Linear(512, 64)
-        self.fc5 = nn.Linear(64, 9)
-
-        self.dropout = nn.Dropout(0.2)
-        self.swish = nn.SiLU()
-    
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.swish(self.fc2(x))
-        x = self.dropout(x)
-        x = self.swish(self.fc3(x))
-        x = self.dropout(x)
-        x = self.swish(self.fc4(x))
-        x = self.dropout(x)
-        x = self.fc5(x)
-        return x
-# pd.set_option('display.max_columns', None)
+import lightgbm as lgb
 
 
 def custom_pinball_loss(y_true, y_pred):
@@ -219,10 +192,11 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
 
     if model_solar_strom is not None:
         #load xgboost model based on pickle path model_wind_stom
-        solar_df = solar_df[[ 
+        quantiles_strom = [1,2,3,4,5,6,7,8,9]
+        solar_df_to_predict = solar_df[[ 
             "Mean_SolarDownwardRadiation",
-            "SolarDownwardRadiation_RW_Mean_30min",
             "SolarDownwardRadiation_RW_Mean_1hour",
+            "SolarDownwardRadiation_RW_Mean_30min",
             "SolarDownwardRadiation_dwd_Mean_Lag_30min",
             "SolarDownwardRadiation_dwd_Mean_Lag_1h",
             "SolarDownwardRadiation_dwd_Mean_Lag_24h",
@@ -233,16 +207,15 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             "Std_Temperature",
             "Mean_Temperature",
             "cos_hour",
-            "cos_day_of_year","solar_mw_lag_48h","capacity_mwp_lag_48h"]]
-        scaler = pickle.load(open('paul_analyse/scaler.pkl', 'rb'))
-        solar_df = scaler.transform(solar_df)
-        model = MLP(input_dim=solar_df.shape[1])
-        model.load_state_dict(torch.load(model_solar_strom))
-        X_tensor = torch.tensor(solar_df, dtype=torch.float32)
-        model.eval()
-        with torch.no_grad():
-            predictions_solar = model(X_tensor).numpy()
-    else:
+            "cos_day_of_year",
+            "capacity_mwp_lag_48h",
+            "solar_mw_lag_48h"]]
+        for i in quantiles_strom:
+            with open(f"{model_solar_strom}{i}.pkl", "rb") as f:
+                model_light = load_pickle1(f)
+            predictions_solar = model_light.predict(solar_df_to_predict)
+            solar_df[f"q{i}0"] = predictions_solar
+
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for quantile in quantiles:
             submission_data[quantile] = np.random.randint(300,1600,size=len(submission_data))
@@ -251,7 +224,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     # submission_data = submission_data.groupby(["datetime"]).first().reset_index()
     quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
     for i,col in enumerate(quantiles):
-        submission_data[col] = wind_df[col].reset_index(drop=True) + predictions_solar[:,i]
+        submission_data[col] = wind_df[col].reset_index(drop=True) + solar_df[col].reset_index(drop=True)
     
     #add market_bid
     if model_bid is not None:
@@ -270,4 +243,4 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="paul_analyse/model1.pth",model_bid=None)
+    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i4_models/lgbr_q",model_bid=None)

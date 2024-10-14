@@ -120,7 +120,7 @@ def objective(trial, X, y, device, quantiles):
     val_loader = DataLoader(val_dataset, batch_size=batch_size)
     
     # Model hyperparameters
-    n_layers = trial.suggest_int('n_layers', 3, 7)
+    n_layers = trial.suggest_int('n_layers', 4, 7)
     layer_sizes = [trial.suggest_int(f'layer_{i}_size', 64, 512, step=32) for i in range(n_layers)]
     dropout_rates = [trial.suggest_float(f'dropout_{i}', 0.1, 0.3) for i in range(n_layers)]
     
