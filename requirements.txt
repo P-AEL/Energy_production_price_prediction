@@ -3,6 +3,5 @@ numpy
 statsmodels
 requests
 joblib
-xgboost
-torch
 scikit-learn
+lightgbm
