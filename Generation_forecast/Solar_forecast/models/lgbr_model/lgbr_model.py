@@ -20,14 +20,11 @@ MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/mo
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
 
-#X = df.drop(columns="Solar_MWh_credit")
-#y = df["Solar_MWh_credit"]
-
 X = df.drop(columns="Target_Capacity_MWP_%")
 y = df["Target_Capacity_MWP_%"]
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=False)
 
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
@@ -56,9 +53,9 @@ def objective(trial, alpha):
         "reg_alpha" : trial.suggest_float("reg_alpha", 0.0, 1.0),
         "reg_lambda" : trial.suggest_float("reg_lambda", 0.0, 1.0),
 
-        # "min_split_gain": trial.suggest_float("min_split_gain", 0.0, 1.0),            # test improve
-        # "min_child_weight": trial.suggest_float("min_child_weight", 0.001, 10.0),
-        # "subsample_freq": trial.suggest_int("subsample_freq", 1, 10)
+        "min_split_gain": trial.suggest_float("min_split_gain", 0.0, 1.0),            # test improve
+        "min_child_weight": trial.suggest_float("min_child_weight", 0.001, 10.0),
+        "subsample_freq": trial.suggest_int("subsample_freq", 1, 10)
     }
 
     model = LGBMRegressor(**params)
