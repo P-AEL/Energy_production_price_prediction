@@ -6,6 +6,8 @@ from copy import deepcopy
 from sklearn.metrics import mean_pinball_loss
 from sklearn.model_selection import train_test_split
 from lightgbm import LGBMRegressor
+from sklearn.ensemble import StackingRegressor
+from sklearn.linear_model import Lasso
 import joblib
 import papermill as pm
 
@@ -13,9 +15,9 @@ logging.basicConfig(level=logging.INFO)
 
 # Set paths
 BASE_PATH = os.getenv("BASE_PATH", "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
-DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")   
-FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/logs")
-MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/models")
+DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")    
+FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_cracked/logs")
+MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_cracked/models")
 
 # Load data
 data = pd.read_csv(DATA_PATH)
@@ -114,6 +116,10 @@ if __name__ == "__main__":
 
         best_model.fit(X_train, y_train)
 
+
+        #estimator = 
+
+
         # Save the best hyperparameters for the current alpha
         trial.params["alpha"] = alpha
         trial.params["loss"] = trial.value
@@ -143,4 +149,4 @@ if __name__ == "__main__":
     # Run the evaluation notebook using papermill
     eval_notebook_path = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/eval/eval_models.ipynb")
     output_notebook_path = os.path.join(iteration_logs_path, f"i{iteration}_eval.ipynb")
-    pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="lgbr_model", iter=iteration))
+    pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="lgbr_cracked", iter=iteration))
