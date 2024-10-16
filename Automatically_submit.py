@@ -66,32 +66,21 @@ def Set_up_features_wind(wind_df,submission_data):
     const_internal_friction_coefficient = 0.5 * 1.240 * np.pi * 77**2 * 3**3 * approximated_total_efficiency * 174 / 1000000
     maximum_power_per_turbine = 7 # in MW
 
-    # Calculating the Generated power
-    wind_df['WindPower'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower'] = np.minimum(wind_df['WindPower'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
-    # depending on the wind speed, the power output is limited to the maximum power output of the turbine or 0
-    wind_df['PowerOutput'] = np.where((wind_df['WindSpeed'] >= minimum_wind_speed) & (wind_df['WindSpeed'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
-
-    # Same for 100m
-    wind_df['WindPower:100'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed:100'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower:100'] = np.minimum(wind_df['WindPower:100'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
-    wind_df['PowerOutput:100'] = np.where((wind_df['WindSpeed:100'] >= minimum_wind_speed) & (wind_df['WindSpeed:100'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower:100'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
-
     # Same for full
-    wind_df['WindSpeed_full_avg'] = (wind_df['WindSpeed'] + wind_df['WindSpeed:100']) / 2
-    wind_df['WindPower_full'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed:100'] ** 3 * 174 / 1000000
-    wind_df['UsableWindPower_full'] = np.minimum(wind_df['WindPower_full'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
+    wind_df.loc[:, 'WindSpeed_full_avg'] = (wind_df['WindSpeed'] + wind_df['WindSpeed:100']) / 2
+    wind_df.loc[:, 'WindPower_full'] = 0.5 * wind_df['AirDensity'] * rotor_area * wind_df['WindSpeed:100'] ** 3 * 174 / 1000000
+    wind_df.loc[:, 'UsableWindPower_full'] = np.minimum(wind_df['WindPower_full'], maximum_power_per_turbine * 174 * limiter / approximated_total_efficiency)
     wind_df['PowerOutput_full'] = np.where((wind_df['WindSpeed:100'] >= minimum_wind_speed) & (wind_df['WindSpeed:100'] <= maximum_wind_speed_for_operation), wind_df['UsableWindPower_full'] * approximated_total_efficiency - const_internal_friction_coefficient, 0)
 
     # wind_df["Temperature_avg"] = (wind_df["Temperature"] + wind_df["Temperature:100"]) / 2
     # wind_df["RelativeHumidity_avg"] = (wind_df["RelativeHumidity"] + wind_df["RelativeHumidity:100"]) / 2
-    wind_df["Temperature_avg"] = wind_df["Temperature"]
-    wind_df["RelativeHumidity_avg"] = wind_df["RelativeHumidity"]   
-    wind_df["WindSpeed:100_dwd_lag1"] = wind_df["WindSpeed:100"].shift(1)
-    wind_df["WindSpeed:100_dwd_lag2"] = wind_df["WindSpeed:100"].shift(2)
-    wind_df["WindSpeed:100_dwd_lag3"] = wind_df["WindSpeed:100"].shift(3)
-    wind_df["UsableWindPower_opt"] = wind_df.UsableWindPower_full
-    wind_df["WindSpeed:100_dwd"] = wind_df["WindSpeed:100"].shift(1)
+    wind_df.loc[:, "Temperature_avg"] = wind_df["Temperature"]
+    wind_df.loc[:, "RelativeHumidity_avg"] = wind_df["RelativeHumidity"]
+    wind_df.loc[:, "WindSpeed:100_dwd_lag1"] = wind_df["WindSpeed:100"].shift(1)
+    wind_df.loc[:, "WindSpeed:100_dwd_lag2"] = wind_df["WindSpeed:100"].shift(2)
+    wind_df.loc[:, "WindSpeed:100_dwd_lag3"] = wind_df["WindSpeed:100"].shift(3)
+    wind_df.loc[:, "UsableWindPower_opt"] = wind_df["UsableWindPower_full"]
+    wind_df.loc[:, "WindSpeed:100_dwd"] = wind_df["WindSpeed:100"].shift(1)
     # print(wind_df)
     # print(pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner'))
 
@@ -113,6 +102,7 @@ def Set_up_features_solar(solar_df,submission_data):
     #features = ['Mean_SolarRadiation_dwd','cos_day','Solar_installedcapacity_mwp','cos_hour','Mean_Temperature_dwd','Mean_CloudCover_dwd']
     solar_df = solar_df.copy()  # Ensure we are working with a copy
     solar_total_production = pd.read_csv("basic_files/solar_total_production.csv")
+    solar_total_production.generation_mw = solar_total_production.generation_mw * 0.5 #fixed
     solar_df.sort_values(by='ref_datetime', inplace=True)
     solar_df = solar_df.groupby(["valid_datetime","latitude","longitude"]).last().reset_index()
     solar_df.reset_index(inplace=True)
@@ -126,19 +116,21 @@ def Set_up_features_solar(solar_df,submission_data):
     solar_df_merged = solar_df_merged.groupby("valid_datetime").mean().reset_index()
     distinct_lat_lon_pairs = solar_df[['latitude', 'longitude']].drop_duplicates()
 
-    # df.loc[:, 'ref_datetime'] = pd.to_datetime(df['ref_datetime'])
-    solar_df_merged["hour"] = solar_df_merged.valid_datetime.dt.hour
-    solar_df_merged["day_of_year"] = solar_df_merged.valid_datetime.dt.dayofyear
-    solar_df_merged["cos_day_of_year"] = np.cos(2 * np.pi * solar_df_merged.day_of_year / 365)
-    solar_df_merged["cos_hour"] = np.cos(2 * np.pi * solar_df_merged.hour / 24)
-    solar_df_merged["Mean_SolarDownwardRadiation"] = solar_df_merged.SolarDownwardRadiation
-    solar_df_merged["Mean_Temperature"] = solar_df_merged.Temperature
+    # Use .loc to safely modify DataFrame columns without warnings
+    solar_df_merged.loc[:, "hour"] = solar_df_merged.valid_datetime.dt.hour
+    solar_df_merged.loc[:, "day_of_year"] = solar_df_merged.valid_datetime.dt.dayofyear
+    solar_df_merged.loc[:, "cos_day_of_year"] = np.cos(2 * np.pi * solar_df_merged["day_of_year"] / 365)
+    solar_df_merged.loc[:, "cos_hour"] = np.cos(2 * np.pi * solar_df_merged["hour"] / 24)
+    solar_df_merged.loc[:, "Mean_SolarDownwardRadiation"] = solar_df_merged["SolarDownwardRadiation"]
+    solar_df_merged.loc[:, "Mean_Temperature"] = solar_df_merged["Temperature"]
     solar_df_merged["Std_Temperature"] = solar_df.groupby("valid_datetime").std().reset_index().Temperature
-    solar_df_merged["SolarDownwardRadiation_RW_Mean_30min"] = solar_df_merged.Mean_SolarDownwardRadiation.rolling(window=1, min_periods=1).mean()
-    solar_df_merged["SolarDownwardRadiation_RW_Mean_1hour"] = solar_df_merged.Mean_SolarDownwardRadiation.rolling(window=2, min_periods=1).mean()
-    solar_df_merged["SolarDownwardRadiation_dwd_Mean_Lag_30min"] = solar_df_merged.Mean_SolarDownwardRadiation.shift(1)
-    solar_df_merged["SolarDownwardRadiation_dwd_Mean_Lag_1h"] = solar_df_merged.Mean_SolarDownwardRadiation.shift(2)
-    solar_df_merged["SolarDownwardRadiation_dwd_Mean_Lag_24h"] = solar_df_merged.Mean_SolarDownwardRadiation.shift(48)
+    # Rolling mean and lagged columns
+    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_Mean_30min"] = solar_df_merged["Mean_SolarDownwardRadiation"].rolling(window=1, min_periods=1).mean()
+    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_Mean_1hour"] = solar_df_merged["Mean_SolarDownwardRadiation"].rolling(window=2, min_periods=1).mean()
+    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_30min"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(1)
+    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_1h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(2)
+    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_24h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(48)
+
     for i in range(len(distinct_lat_lon_pairs)):
         lat = distinct_lat_lon_pairs.latitude.iloc[i]
         lon = distinct_lat_lon_pairs.longitude.iloc[i]
@@ -152,12 +144,14 @@ def Set_up_features_solar(solar_df,submission_data):
         panel_eff_col = f'Panel_Efficiency_Point{i}'
         solar_df_merged[panel_temp_col], solar_df_merged[panel_eff_col] = pv_temperature_efficiency(solar_df_merged[irradiance_col], solar_df_merged[temp_col])
     
-    solar_df_merged["Panel_Temperature_dwd_mean"] = solar_df_merged.filter(regex= r"Panel_Temperature.*").mean(axis= 1)
-    solar_df_merged["Panel_Efficiency_dwd_mean"] = solar_df_merged.filter(regex= r"Panel_Efficiency.*").mean(axis= 1)
-    solar_df_merged["Panel_Temperature_dwd_std"] = solar_df_merged.filter(regex= r"Panel_Temperature.*").std(axis= 1)
-    solar_df_merged["Panel_Efficiency_dwd_std"] = solar_df_merged.filter(regex= r"Panel_Efficiency.*").std(axis= 1)
-    solar_df_merged["solar_mw_lag_48h"] = solar_df_merged.generation_mw.shift(periods= 96)
-    solar_df_merged["capacity_mwp_lag_48h"] = solar_df_merged.capacity_mwp.shift(periods= 96)
+    solar_df_merged.loc[:, "Panel_Temperature_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").mean(axis=1)
+    solar_df_merged.loc[:, "Panel_Efficiency_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").mean(axis=1)
+    solar_df_merged.loc[:, "Panel_Temperature_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").std(axis=1)
+    solar_df_merged.loc[:, "Panel_Efficiency_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").std(axis=1)
+    solar_df_merged.loc[:, "solar_mw_lag_48h"] = solar_df_merged["generation_mw"].shift(periods=96)
+    solar_df_merged.loc[:, "capacity_mwp_lag_48h"] = solar_df_merged["capacity_mwp"].shift(periods=96)
+    solar_df_merged.loc[:, "Target_Capacity_MWP%"] = solar_df_merged["generation_mw"] / solar_df_merged["capacity_mwp"]
+    solar_df_merged.loc[:, "Target_Capacity_MWP%_lag_48h"] = solar_df_merged["Target_Capacity_MWP%"].shift(periods=96)
     solar_df_merged = pd.merge(solar_df_merged, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
     return solar_df_merged
 
@@ -181,7 +175,6 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for i,quantile in enumerate(quantiles):
             path = f"{model_wind_stom}{i+1}_res-True_calc-False.pkl"
-            print(path)
             with open(f"{model_wind_stom}{i+1}_res-True_calc-False.pkl", "rb") as f:
                 model = load_pickle1(f)
             # print(f"\nModell für Quantil {quantile}:")
@@ -217,11 +210,9 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             if not hasattr(model, '_preprocessor'):
                 model._preprocessor = None
             df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity',"UsableWindPower_opt", 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3']]
-            df_to_predict["UsableWindPower_opt"] = wind_df["UsableWindPower_opt"]
             residuals = model.predict(df_to_predict)
-            predictions = wind_df.PowerOutput_full + residuals
+            predictions = wind_df.PowerOutput_full / 2 + residuals
             wind_df.loc[:, quantile] = predictions
-            print(f"Predicted {predictions} ")
     else:
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for quantile in quantiles:
@@ -245,13 +236,16 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             "Mean_Temperature",
             "cos_hour",
             "cos_day_of_year",
+            "solar_mw_lag_48h",
             "capacity_mwp_lag_48h",
-            "solar_mw_lag_48h"]]
+            "Target_Capacity_MWP%_lag_48h",
+            ]]
+        mean_to_multiply = solar_df.capacity_mwp_lag_48h.mean()
         for i in quantiles_strom:
             with open(f"{model_solar_strom}{i}.pkl", "rb") as f:
                 model_light = load_pickle1(f)
             predictions_solar = model_light.predict(solar_df_to_predict)
-            solar_df[f"q{i}0"] = predictions_solar
+            solar_df[f"q{i}0"] = predictions_solar*mean_to_multiply
 
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for quantile in quantiles:
@@ -276,10 +270,11 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             submission_data[col] = submission_data[col].astype(float)
     # submission_data[quantiles] = submission_data[quantiles].apply(sorted, axis=1)
     submission_data[quantiles] = submission_data[quantiles].apply(lambda row: sorted(row), axis=1, result_type='expand')
+    print(submission_data)
     submission_data = comp_utils.prep_submission_in_json_format(submission_data)
     # #submit data
     rebase_api_client.submit(submission_data)
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i4_models/lgbr_q",model_bid=None)
+    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i5_models/lgbr_q",model_bid=None)
