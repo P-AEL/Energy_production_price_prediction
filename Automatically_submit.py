@@ -12,6 +12,10 @@ import joblib
 from sklearn.ensemble import HistGradientBoostingRegressor  # Dies ist nur für die Typisierung notwendig
 import pickle
 import lightgbm as lgb
+from sklearn.exceptions import InconsistentVersionWarning
+
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def custom_pinball_loss(y_true, y_pred):
@@ -176,11 +180,42 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         #load xgboost model based on pickle path model_wind_stom
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for i,quantile in enumerate(quantiles):
-            with open(f"{model_wind_stom}{i+1}.pkl", "rb") as f:
+            with open(f"{model_wind_stom}{i+1}_res-True_calc-False.pkl", "rb") as f:
                 model = load_pickle1(f)
+            # print(f"\nModell für Quantil {quantile}:")
+            # print(f"Modelltyp: {type(model).__name__}")
+            
+            # if hasattr(model, 'feature_importances_'):
+            #     feature_importances = model.feature_importances_
+            #     if hasattr(model, 'feature_names_in_'):
+            #         feature_names = model.feature_names_in_
+            #     elif hasattr(model, 'feature_name_'):
+            #         feature_names = model.feature_name_
+            #     else:
+            #         print("Warnung: Keine Feature-Namen gefunden.")
+            #         continue
+                
+            #     sorted_features = sorted(zip(feature_names, feature_importances), 
+            #                             key=lambda x: x[1], reverse=True)
+                
+            #     print("Feature-Reihenfolge:")
+            #     for name, importance in sorted_features:
+            #         print(f"{name}: {importance}")
+            # else:
+            #     print("Das Modell hat kein 'feature_importances_' Attribut.")
+            #     if hasattr(model, 'feature_names_in_'):
+            #         print("Feature-Namen:")
+            #         for name in model.feature_names_in_:
+            #             print(name)
+            #     elif hasattr(model, 'feature_name_'):
+            #         print("Feature-Namen:")
+            #         for name in model.feature_name_:
+            #             print(name)
+
             if not hasattr(model, '_preprocessor'):
                 model._preprocessor = None
-            df_to_predict = wind_df[["WindSpeed:100_dwd","Temperature_avg","RelativeHumidity_avg","AirDensity","UsableWindPower_opt","WindSpeed:100_dwd_lag1","WindSpeed:100_dwd_lag2","WindSpeed:100_dwd_lag3"]]
+            df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity',"UsableWindPower_opt", 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3']]
+            df_to_predict["UsableWindPower_opt"] = wind_df["UsableWindPower_opt"]
             residuals = model.predict(df_to_predict)
             predictions = wind_df.PowerOutput_full + residuals
             wind_df.loc[:, quantile] = predictions
