@@ -180,6 +180,8 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         #load xgboost model based on pickle path model_wind_stom
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for i,quantile in enumerate(quantiles):
+            path = f"{model_wind_stom}{i+1}_res-True_calc-False.pkl"
+            print(path)
             with open(f"{model_wind_stom}{i+1}_res-True_calc-False.pkl", "rb") as f:
                 model = load_pickle1(f)
             # print(f"\nModell für Quantil {quantile}:")
