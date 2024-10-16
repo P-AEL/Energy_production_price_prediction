@@ -117,7 +117,7 @@ if real_value is not None:
 try:
     day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions]
     imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions]
-    Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+    Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
     st.write(f"Revenue: {Revenue}")
 except:
     st.write("No data available for selected date")
@@ -136,7 +136,7 @@ try:
         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
         revenues.append(Revenue)
     df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
     fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
@@ -161,7 +161,7 @@ try:
         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
         revenues.append(Revenue)
     df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
     fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
@@ -185,7 +185,7 @@ try:
         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
         revenues.append(Revenue)
     df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
     fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
@@ -208,7 +208,7 @@ try:
         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * imbalance_price["imbalance_price"].values[0]
+        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
         loss = pinball_loss(probabilistic_forecast, real_value)
         losses.append(loss)
     df_loss = pd.DataFrame(losses, columns=['Loss'])
