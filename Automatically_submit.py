@@ -268,7 +268,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     for col in submission_data.columns:
         if submission_data[col].dtype == 'float32':
             submission_data[col] = submission_data[col].astype(float)
-    # submission_data[quantiles] = submission_data[quantiles].apply(sorted, axis=1)
+    submission_data[quantiles] = submission_data[quantiles].applymap(lambda x: max(x, 0))
     submission_data[quantiles] = submission_data[quantiles].apply(lambda row: sorted(row), axis=1, result_type='expand')
     print(submission_data)
     submission_data = comp_utils.prep_submission_in_json_format(submission_data)
