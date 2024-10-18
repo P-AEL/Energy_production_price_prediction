@@ -13,10 +13,92 @@ from sklearn.ensemble import HistGradientBoostingRegressor  # Dies ist nur für 
 import pickle
 import lightgbm as lgb
 from sklearn.exceptions import InconsistentVersionWarning
+import json
+from sklearn.preprocessing import StandardScaler
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from scipy.optimize import minimize
+
 
 warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
+
+class LSTMPredictor(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout=0.1):
+        super(LSTMPredictor, self).__init__()
+        
+        # Parameters
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.output_size = output_size
+        self.dropout = dropout
+
+        # Define the LSTM layer(s)
+        self.lstm = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_size, 
+                            num_layers=self.num_layers, batch_first=True, dropout=self.dropout)
+        
+        # Fully connected layer to map LSTM output to the target size
+        self.fc = nn.Linear(self.hidden_size, self.output_size)
+        
+    def forward(self, x):
+        # Initialize hidden and cell states for LSTM
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)  # Hidden state
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)  # Cell state
+
+        # Forward propagate LSTM
+        out, _ = self.lstm(x, (h0, c0))  # We only need the output
+        
+        # Get the last output (many-to-one), out[:, -1, :] gives the last time step
+        out = out[:, -1, :]
+        
+        # Pass the output through a fully connected layer
+        out = self.fc(out)
+        
+        return out
+
+def revenue(zb, DAP, Target_MW, imbalance_price):
+    return zb * DAP + (Target_MW - zb) * (imbalance_price - 0.07 * (Target_MW - zb))
+
+# Negative revenue function (for minimization)
+def negative_revenue(zb, DAP, Target_MW, imbalance_price):
+    return -revenue(zb, DAP, Target_MW, imbalance_price)
+
+# Optimization function to compute the optimal bidding value for each row
+def optimize_bidding(row):
+    # Extract the values from the row
+    DAP = row['predictions_day_ahead']
+    Target_MW = row['5']
+    imbalance_price = row['predictions_imbalance']
+    
+    # Initial guess for zb (midpoint between 0 and Target_MW)
+    initial_zb = Target_MW / 2
+    
+    # Bounds for zb (as per KKT conditions)
+    bounds = [(0, 1800)]
+    
+    # Perform the optimization
+    result = minimize(negative_revenue, initial_zb, args=(DAP, Target_MW, imbalance_price), bounds=bounds)
+    
+    # Optimal trade value (zb)
+    return result.x[0]
+
+def get_predictions(model, X_tensor):
+    input_size = 15  # Number of features
+    hidden_size = 64              # Number of LSTM units
+    num_layers = 3                 # Number of LSTM layers
+    output_size = 1                # Always 9 for 9 quantiles
+    dropout = 0.1  
+    model_imbalance = LSTMPredictor(input_size, hidden_size, num_layers, output_size, dropout=dropout)
+    model_imbalance.load_state_dict(torch.load(model))
+    # Modell in den Evaluierungsmodus versetzen
+    model_imbalance.eval()
+    with torch.no_grad():
+        predictions = model_imbalance(X_tensor)
+    predictions = predictions.numpy()
+    return predictions
 
 def custom_pinball_loss(y_true, y_pred):
         y_true = y_true.get_label() if hasattr(y_true, 'get_label') else y_true
@@ -155,6 +237,72 @@ def Set_up_features_solar(solar_df,submission_data):
     solar_df_merged = pd.merge(solar_df_merged, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
     return solar_df_merged
 
+def Set_up_features_bid(submission_data):
+    df_imbalance_price = pd.read_csv("basic_files/imbalance_price.csv")
+    df_day_ahead_price = pd.read_csv("basic_files/day_ahead_price.csv")
+    df_market_price = pd.read_csv("basic_files/market_index.csv")
+    df_day_ahead_price.timestamp_utc = pd.to_datetime(df_day_ahead_price.timestamp_utc)
+    df_market_price.timestamp_utc = pd.to_datetime(df_market_price.timestamp_utc)
+    df_imbalance_price.timestamp_utc = pd.to_datetime(df_imbalance_price.timestamp_utc)
+    min_date = submission_data.datetime.min() - timedelta(minutes=30)
+    datetimes = pd.date_range(end=min_date, periods=336, freq='30min')
+    df_half_hourly = pd.DataFrame({"datetime": datetimes})
+    df_half_hourly["datetime"] = pd.to_datetime(df_half_hourly["datetime"])
+    df_submission_combined = pd.merge(df_half_hourly, submission_data, left_on='datetime', right_on='datetime', how='outer')
+    df_submission_combined = pd.merge(df_submission_combined, df_day_ahead_price, left_on='datetime', right_on='timestamp_utc', how='left')
+    df_submission_combined = pd.merge(df_submission_combined, df_imbalance_price, left_on='datetime', right_on='timestamp_utc', how='left')
+    df_submission_combined = pd.merge(df_submission_combined, df_market_price, left_on='datetime', right_on='timestamp_utc', how='left')
+    df_submission_combined["day_ahead_price"] = df_submission_combined["price_x"].rename("day_ahead_price")
+    df_submission_combined["market_price"] = df_submission_combined["price_y"].rename("market_price")
+    df_submission_combined["settlement_period"] = df_submission_combined["settlement_period_x"].rename("settlement_period")
+    df_submission_combined["cos_hour"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.hour/24)
+    df_submission_combined["cos_day"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.day/7)
+    df_api_new_merged1 = df_submission_combined[["datetime","market_price","day_ahead_price","volume","settlement_period","cos_hour","cos_day","q10","q20","q30","q40","q50","q60","q70","q80","q90","imbalance_price"]].copy()
+    df_api_new_merged1.loc[:,"market_price_lag48h"] = df_api_new_merged1["market_price"].shift(96)
+    df_api_new_merged1.loc[:,"imbalance_price_lag48h"] = df_api_new_merged1["imbalance_price"].shift(96)
+    df_api_new_merged1.loc[:,"day_ahead_price_lag1week"] = df_api_new_merged1["day_ahead_price"].shift(336)
+    df_api_new_merged1.loc[:,"volume_lag48h"] = df_api_new_merged1["volume"].shift(96)
+    df_api_new_merged1 = df_api_new_merged1.rename(columns={
+    "q10": "1",
+    "q20": "2"
+    ,"q30": "3"
+    ,"q40": "4"
+    ,"q50": "5"
+    ,"q60": "6"
+    ,"q70": "7"
+    ,"q80": "8"
+    ,"q90": "9"
+    })
+    df_api_new_merged2 = df_api_new_merged1[["datetime","market_price_lag48h","imbalance_price_lag48h","day_ahead_price_lag1week","volume_lag48h",
+                    "cos_hour","cos_day","1","2","3","4","5","6","7","8","9"]]
+    df_api_new_merged2.dropna(inplace=True)
+    scaler_path = "paul_analyse/LSTM_imbalance_scaler.pkl"
+    with open(scaler_path, 'rb') as file:
+        scaler = pickle.load(file)
+
+    df_api_new_merged2_X = scaler.transform(df_api_new_merged2.drop(columns=["datetime"]))
+    X_tensor = torch.tensor(df_api_new_merged2_X, dtype=torch.float32)
+    X_tensor = X_tensor.unsqueeze(1)  # Adds a sequence length dimension
+    model_imbalance = "paul_analyse/LSTM_imbalance_price.pth"
+    predictions_imbalance = get_predictions(model_imbalance, X_tensor)
+    model_day_ahead = "paul_analyse/LSTM_day_ahead_price.pth"
+    predictions_day_ahead = get_predictions(model_day_ahead, X_tensor)
+    df_api_new_merged2["predictions_imbalance"] = predictions_imbalance
+    df_api_new_merged2["predictions_day_ahead"] = predictions_day_ahead
+    df_api_new_merged2["market_bid"] = df_api_new_merged2.apply(optimize_bidding, axis=1)
+    df_api_new_merged2 = df_api_new_merged2.rename(columns={
+    "1": "q10",
+    "2": "q20"
+    ,"3": "q30"
+    ,"4": "q40"
+    ,"5": "q50"
+    ,"6": "q60"
+    ,"7": "q70"
+    ,"8": "q80"
+    ,"9": "q90"    })
+    df_api_new_merged2 = df_api_new_merged2[["datetime","q10","q20","q30","q40","q50","q60","q70","q80","q90","market_bid"]].reset_index(drop=True)
+    return df_api_new_merged2
+
 def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     #create df with times
     api_key = open("team_key.txt").read()
@@ -260,7 +408,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     #add market_bid
     if model_bid is not None:
         # code for quantile regression
-        pass
+        submission_data=Set_up_features_bid(submission_data)
     else:
         submission_data["market_bid"]= submission_data["q50"]
     
@@ -277,4 +425,4 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i5_models/lgbr_q",model_bid=None)
+    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i5_models/lgbr_q",model_bid=("paul_analyse/LSTM_imbalance_price.pth","paul_analyse/LSTM_day_ahead_price.pth"))
