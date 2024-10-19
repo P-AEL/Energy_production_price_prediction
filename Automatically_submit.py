@@ -258,10 +258,10 @@ def Set_up_features_bid(submission_data):
     df_submission_combined["cos_hour"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.hour/24)
     df_submission_combined["cos_day"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.day/7)
     df_api_new_merged1 = df_submission_combined[["datetime","market_price","day_ahead_price","volume","settlement_period","cos_hour","cos_day","q10","q20","q30","q40","q50","q60","q70","q80","q90","imbalance_price"]].copy()
-    df_api_new_merged1.loc[:,"market_price_lag48h"] = df_api_new_merged1["market_price"].shift(96)
-    df_api_new_merged1.loc[:,"imbalance_price_lag48h"] = df_api_new_merged1["imbalance_price"].shift(96)
+    df_api_new_merged1.loc[:,"market_price_lag96h"] = df_api_new_merged1["market_price"].shift(192)
+    df_api_new_merged1.loc[:,"imbalance_price_lag96h"] = df_api_new_merged1["imbalance_price"].shift(192)
     df_api_new_merged1.loc[:,"day_ahead_price_lag1week"] = df_api_new_merged1["day_ahead_price"].shift(336)
-    df_api_new_merged1.loc[:,"volume_lag48h"] = df_api_new_merged1["volume"].shift(96)
+    df_api_new_merged1.loc[:,"volume_lag96h"] = df_api_new_merged1["volume"].shift(192)
     df_api_new_merged1 = df_api_new_merged1.rename(columns={
     "q10": "1",
     "q20": "2"
@@ -273,7 +273,7 @@ def Set_up_features_bid(submission_data):
     ,"q80": "8"
     ,"q90": "9"
     })
-    df_api_new_merged2 = df_api_new_merged1[["datetime","market_price_lag48h","imbalance_price_lag48h","day_ahead_price_lag1week","volume_lag48h",
+    df_api_new_merged2 = df_api_new_merged1[["datetime","market_price_lag96h","imbalance_price_lag96h","day_ahead_price_lag1week","volume_lag96h",
                     "cos_hour","cos_day","1","2","3","4","5","6","7","8","9"]]
     df_api_new_merged2.dropna(inplace=True)
     scaler_path = "paul_analyse/LSTM_imbalance_scaler.pkl"
