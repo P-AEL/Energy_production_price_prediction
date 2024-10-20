@@ -143,58 +143,59 @@ try:
     st.plotly_chart(fig_revenue)
     #day average
     st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
+    st.write(f"Total Revenue: {df_revenue['Revenue'].sum()}")
     
 
 except:
     st.write("No data available for selected date")
 
 #plot for revenue using different bidding strategies
-try:
-    st.write("Revenue using different bidding strategies 40% qunatile")
-    revenues = []
-    for date in options_submissions:
-        selected_index_submissions_rev, selected_date_submissions_rev = date
-        market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["probabilistic_forecast"]["40"]
-        selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
-        solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
-        day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
-        revenues.append(Revenue)
-    df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
-    fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
-    st.plotly_chart(fig_revenue)
-    #day average
-    st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
+# try:
+#     st.write("Revenue using different bidding strategies 40% qunatile")
+#     revenues = []
+#     for date in options_submissions:
+#         selected_index_submissions_rev, selected_date_submissions_rev = date
+#         market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["probabilistic_forecast"]["40"]
+#         selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
+#         solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
+#         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
+#         revenues.append(Revenue)
+#     df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
+#     fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
+#     st.plotly_chart(fig_revenue)
+#     #day average
+#     st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
 
-except:
-    st.write("No data available for selected date")
+# except:
+#     st.write("No data available for selected date")
 
 #plot for revenue using different bidding strategies
-try:
-    st.write("Revenue using different bidding strategies 60% qunatile")
-    revenues = []
-    for date in options_submissions:
-        selected_index_submissions_rev, selected_date_submissions_rev = date
-        market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["probabilistic_forecast"]["60"]
-        selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
-        solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
-        day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
-        Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
-        revenues.append(Revenue)
-    df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
-    fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
-    st.plotly_chart(fig_revenue)
-    #day average
-    st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
+# try:
+#     st.write("Revenue using different bidding strategies 60% qunatile")
+#     revenues = []
+#     for date in options_submissions:
+#         selected_index_submissions_rev, selected_date_submissions_rev = date
+#         market_bid = data[selected_index]["solution"]["submission"][selected_index_submissions_rev]["probabilistic_forecast"]["60"]
+#         selected_date_submissions_rev_datetime = pd.to_datetime(selected_date_submissions_rev)
+#         solar_production = df_total_solar.loc[df_total_solar['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         wind_production = df_total_wind.loc[df_total_wind['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         real_value = wind_production['generation_mw'].values[0] + solar_production['generation_mw'].values[0]
+#         day_ahead_price = df_day_ahead_price.loc[df_day_ahead_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         imbalance_price = df_imbalance_price.loc[df_imbalance_price['timestamp_utc'] == selected_date_submissions_rev_datetime]
+#         Revenue = market_bid * day_ahead_price["price"].values[0] +(real_value - market_bid) * (imbalance_price["imbalance_price"].values[0] - 0.07*(real_value-market_bid))
+#         revenues.append(Revenue)
+#     df_revenue = pd.DataFrame(revenues, columns=['Revenue'])
+#     fig_revenue = px.line(df_revenue,x=submissions, y='Revenue', title='Revenue_over_day')
+#     st.plotly_chart(fig_revenue)
+#     #day average
+#     st.write(f"Average Revenue: {df_revenue['Revenue'].mean()}")
 
-except:
-    st.write("No data available for selected date")
+# except:
+#     st.write("No data available for selected date")
 
 #plot for loss
 try:
@@ -216,6 +217,7 @@ try:
     st.plotly_chart(fig_loss)
     #day average
     st.write(f"Average Loss: {df_loss['Loss'].mean()}")
+    st.write(f"Total Loss: {df_loss['Loss'].sum()}")
 
 except:
     st.write("No data available for selected date")
