@@ -19,11 +19,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from scipy.optimize import minimize
+pd.set_option('display.max_columns', None)
+import math
 
 
 warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
-
+def round_timedelta_to_days(td):
+    return timedelta(days=math.ceil(td.total_seconds() / (24 * 3600)))
 
 class LSTMPredictor(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, output_size, dropout=0.1):
@@ -194,6 +197,11 @@ def Set_up_features_solar(solar_df,submission_data):
     solar_df = solar_df.reset_index()
     solar_total_production.timestamp_utc = pd.to_datetime(solar_total_production.timestamp_utc)
     solar_df.drop(columns=['index','ref_datetime'], inplace=True)
+    max_submitted_date = submission_data.datetime.max()
+    max_total_production_date = solar_total_production.timestamp_utc.max()
+    diff = max_submitted_date - max_total_production_date
+    rounded_diff = round_timedelta_to_days(diff)
+    time_to_delude = rounded_diff.days * 48
     solar_df_merged = pd.merge(solar_df, solar_total_production, how='left', left_on='valid_datetime', right_on='timestamp_utc')
     solar_df_merged = solar_df_merged.groupby("valid_datetime").mean().reset_index()
     distinct_lat_lon_pairs = solar_df[['latitude', 'longitude']].drop_duplicates()
@@ -212,7 +220,6 @@ def Set_up_features_solar(solar_df,submission_data):
     solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_30min"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(1)
     solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_1h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(2)
     solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_24h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(48)
-
     for i in range(len(distinct_lat_lon_pairs)):
         lat = distinct_lat_lon_pairs.latitude.iloc[i]
         lon = distinct_lat_lon_pairs.longitude.iloc[i]
@@ -226,14 +233,16 @@ def Set_up_features_solar(solar_df,submission_data):
         panel_eff_col = f'Panel_Efficiency_Point{i}'
         solar_df_merged[panel_temp_col], solar_df_merged[panel_eff_col] = pv_temperature_efficiency(solar_df_merged[irradiance_col], solar_df_merged[temp_col])
     
+
     solar_df_merged.loc[:, "Panel_Temperature_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").mean(axis=1)
     solar_df_merged.loc[:, "Panel_Efficiency_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").mean(axis=1)
     solar_df_merged.loc[:, "Panel_Temperature_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").std(axis=1)
     solar_df_merged.loc[:, "Panel_Efficiency_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").std(axis=1)
-    solar_df_merged.loc[:, "solar_mw_lag_48h"] = solar_df_merged["generation_mw"].shift(periods=96)
-    solar_df_merged.loc[:, "capacity_mwp_lag_48h"] = solar_df_merged["capacity_mwp"].shift(periods=96)
+    solar_df_merged.loc[:, "solar_mw_lag_48h"] = solar_df_merged["generation_mw"].shift(periods=time_to_delude)
+    solar_df_merged.loc[:, "capacity_mwp_lag_48h"] = solar_df_merged["capacity_mwp"].shift(periods=time_to_delude)
     solar_df_merged.loc[:, "Target_Capacity_MWP%"] = solar_df_merged["generation_mw"] / solar_df_merged["capacity_mwp"]
-    solar_df_merged.loc[:, "Target_Capacity_MWP%_lag_48h"] = solar_df_merged["Target_Capacity_MWP%"].shift(periods=96)
+    solar_df_merged.loc[:, "Target_Capacity_MWP%_lag_48h"] = solar_df_merged["Target_Capacity_MWP%"].shift(periods=time_to_delude)
+    
     solar_df_merged = pd.merge(solar_df_merged, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
     return solar_df_merged
 
@@ -279,7 +288,6 @@ def Set_up_features_bid(submission_data):
     scaler_path = "paul_analyse/LSTM_imbalance_scaler.pkl"
     with open(scaler_path, 'rb') as file:
         scaler = pickle.load(file)
-
     df_api_new_merged2_X = scaler.transform(df_api_new_merged2.drop(columns=["datetime"]))
     X_tensor = torch.tensor(df_api_new_merged2_X, dtype=torch.float32)
     X_tensor = X_tensor.unsqueeze(1)  # Adds a sequence length dimension
