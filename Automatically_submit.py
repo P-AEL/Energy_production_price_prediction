@@ -365,7 +365,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
 
             if not hasattr(model, '_preprocessor'):
                 model._preprocessor = None
-            df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity',"UsableWindPower_opt", 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3']]
+            df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity', 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3','UsableWindPower_opt']]
             residuals = model.predict(df_to_predict)
             predictions = wind_df.PowerOutput_full / 2 + residuals
             wind_df.loc[:, quantile] = predictions
