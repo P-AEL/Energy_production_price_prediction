@@ -19,7 +19,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from scipy.optimize import minimize
-pd.set_option('display.max_columns', None)
+#pd.set_option('display.max_columns', None)
 import math
 
 
@@ -333,39 +333,39 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             path = f"{model_wind_stom}{i+1}_res-True_calc-False.pkl"
             with open(f"{model_wind_stom}{i+1}_res-True_calc-False.pkl", "rb") as f:
                 model = load_pickle1(f)
-            # print(f"\nModell für Quantil {quantile}:")
-            # print(f"Modelltyp: {type(model).__name__}")
+            print(f"\nModell für Quantil {quantile}:")
+            print(f"Modelltyp: {type(model).__name__}")
             
-            # if hasattr(model, 'feature_importances_'):
-            #     feature_importances = model.feature_importances_
-            #     if hasattr(model, 'feature_names_in_'):
-            #         feature_names = model.feature_names_in_
-            #     elif hasattr(model, 'feature_name_'):
-            #         feature_names = model.feature_name_
-            #     else:
-            #         print("Warnung: Keine Feature-Namen gefunden.")
-            #         continue
+            if hasattr(model, 'feature_importances_'):
+                feature_importances = model.feature_importances_
+                if hasattr(model, 'feature_names_in_'):
+                    feature_names = model.feature_names_in_
+                elif hasattr(model, 'feature_name_'):
+                    feature_names = model.feature_name_
+                else:
+                    print("Warnung: Keine Feature-Namen gefunden.")
+                    continue
                 
-            #     sorted_features = sorted(zip(feature_names, feature_importances), 
-            #                             key=lambda x: x[1], reverse=True)
+                sorted_features = sorted(zip(feature_names, feature_importances), 
+                                        key=lambda x: x[1], reverse=True)
                 
-            #     print("Feature-Reihenfolge:")
-            #     for name, importance in sorted_features:
-            #         print(f"{name}: {importance}")
-            # else:
-            #     print("Das Modell hat kein 'feature_importances_' Attribut.")
-            #     if hasattr(model, 'feature_names_in_'):
-            #         print("Feature-Namen:")
-            #         for name in model.feature_names_in_:
-            #             print(name)
-            #     elif hasattr(model, 'feature_name_'):
-            #         print("Feature-Namen:")
-            #         for name in model.feature_name_:
-            #             print(name)
+                print("Feature-Reihenfolge:")
+                for name, importance in sorted_features:
+                    print(f"{name}: {importance}")
+            else:
+                print("Das Modell hat kein 'feature_importances_' Attribut.")
+                if hasattr(model, 'feature_names_in_'):
+                    print("Feature-Namen:")
+                    for name in model.feature_names_in_:
+                        print(name)
+                elif hasattr(model, 'feature_name_'):
+                    print("Feature-Namen:")
+                    for name in model.feature_name_:
+                        print(name)
 
             if not hasattr(model, '_preprocessor'):
                 model._preprocessor = None
-            df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity',"UsableWindPower_opt", 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3']]
+            df_to_predict = wind_df[['WindSpeed:100_dwd', 'Temperature_avg', 'RelativeHumidity_avg', 'AirDensity', 'WindSpeed:100_dwd_lag1', 'WindSpeed:100_dwd_lag2', 'WindSpeed:100_dwd_lag3','UsableWindPower_opt']]
             residuals = model.predict(df_to_predict)
             predictions = wind_df.PowerOutput_full / 2 + residuals
             wind_df.loc[:, quantile] = predictions
