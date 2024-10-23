@@ -298,6 +298,11 @@ def Set_up_features_bid(submission_data):
     df_api_new_merged2["predictions_imbalance"] = predictions_imbalance
     df_api_new_merged2["predictions_day_ahead"] = predictions_day_ahead
     df_api_new_merged2["market_bid"] = df_api_new_merged2.apply(optimize_bidding, axis=1)
+    with open(f"paul_analyse/lightgbm_model.joblib", "rb") as f:
+        model_bid_residual = load_pickle1(f)
+    X_residual = df_api_new_merged2[["predictions_day_ahead","predictions_imbalance","market_bid","cos_hour","cos_day","1","9"]]
+    residuals = model_bid_residual.predict(X_residual.values)
+    df_api_new_merged2["market_bid"] = df_api_new_merged2["market_bid"] + residuals
     df_api_new_merged2 = df_api_new_merged2.rename(columns={
     "1": "q10",
     "2": "q20"
@@ -375,7 +380,6 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             submission_data[quantile] = np.random.randint(300,1600,size=len(submission_data))
 
     if model_solar_strom is not None:
-        #load xgboost model based on pickle path model_wind_stom
         quantiles_strom = [1,2,3,4,5,6,7,8,9]
         solar_df_to_predict = solar_df[[ 
             "Mean_SolarDownwardRadiation",
@@ -403,12 +407,22 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
             predictions_solar = model_light.predict(solar_df_to_predict)
             solar_df[f"q{i}0"] = predictions_solar*mean_to_multiply
 
-        quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
-        for quantile in quantiles:
-            submission_data[quantile] = np.random.randint(300,1600,size=len(submission_data))
+    #sort
+    wind_df = wind_df[["datetime","q10","q20","q30","q40","q50","q60","q70","q80","q90"]]
+    for col in wind_df.columns:
+        if wind_df[col].dtype == 'float32':
+            wind_df[col] = wind_df[col].astype(float)
+    wind_df[quantiles] = wind_df[quantiles].applymap(lambda x: max(x, 0))
+    wind_df[quantiles] = wind_df[quantiles].apply(lambda row: sorted(row), axis=1, result_type='expand')
 
-    #join wind_df and solar_df on datetime and add the respective quantiles columns
-    # submission_data = submission_data.groupby(["datetime"]).first().reset_index()
+    solar_df = solar_df[["datetime","q10","q20","q30","q40","q50","q60","q70","q80","q90"]]
+    for col in solar_df.columns:
+        if solar_df[col].dtype == 'float32':
+            solar_df[col] = solar_df[col].astype(float)
+    solar_df[quantiles] = solar_df[quantiles].applymap(lambda x: max(x, 0))
+    solar_df[quantiles] = solar_df[quantiles].apply(lambda row: sorted(row), axis=1, result_type='expand')
+
+    #adding
     quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
     for i,col in enumerate(quantiles):
         submission_data[col] = wind_df[col].reset_index(drop=True) + solar_df[col].reset_index(drop=True)
@@ -421,11 +435,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         submission_data["market_bid"]= submission_data["q50"]
     
     submission_data = submission_data[["datetime","q10","q20","q30","q40","q50","q60","q70","q80","q90","market_bid"]]
-    for col in submission_data.columns:
-        if submission_data[col].dtype == 'float32':
-            submission_data[col] = submission_data[col].astype(float)
-    submission_data[quantiles] = submission_data[quantiles].applymap(lambda x: max(x, 0))
-    submission_data[quantiles] = submission_data[quantiles].apply(lambda row: sorted(row), axis=1, result_type='expand')
+
     print(submission_data)
     submission_data = comp_utils.prep_submission_in_json_format(submission_data)
     # #submit data
