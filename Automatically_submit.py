@@ -184,7 +184,7 @@ def pv_temperature_efficiency(irradiance, ambient_temp, NOCT=45, wind_speed=1, e
     return Tc, efficiency
 
 def Set_up_features_solar(solar_df,submission_data):
-    #features = ['Mean_SolarRadiation_dwd','cos_day','Solar_installedcapacity_mwp','cos_hour','Mean_Temperature_dwd','Mean_CloudCover_dwd']
+    #features = ['Mean_SolarRadiation_dwd','cos_day','Solar_installedcapacity_mwp','cos_hour','Temperature_dwd_Mean','Mean_CloudCover_dwd']
     solar_df = solar_df.copy()  # Ensure we are working with a copy
     solar_total_production = pd.read_csv("basic_files/solar_total_production.csv")
     solar_total_production.generation_mw = solar_total_production.generation_mw * 0.5 #fixed
@@ -209,17 +209,17 @@ def Set_up_features_solar(solar_df,submission_data):
     # Use .loc to safely modify DataFrame columns without warnings
     solar_df_merged.loc[:, "hour"] = solar_df_merged.valid_datetime.dt.hour
     solar_df_merged.loc[:, "day_of_year"] = solar_df_merged.valid_datetime.dt.dayofyear
-    solar_df_merged.loc[:, "cos_day_of_year"] = np.cos(2 * np.pi * solar_df_merged["day_of_year"] / 365)
+    solar_df_merged.loc[:, "cos_day"] = np.cos(2 * np.pi * solar_df_merged["day_of_year"] / 365)
     solar_df_merged.loc[:, "cos_hour"] = np.cos(2 * np.pi * solar_df_merged["hour"] / 24)
-    solar_df_merged.loc[:, "Mean_SolarDownwardRadiation"] = solar_df_merged["SolarDownwardRadiation"]
-    solar_df_merged.loc[:, "Mean_Temperature"] = solar_df_merged["Temperature"]
-    solar_df_merged["Std_Temperature"] = solar_df.groupby("valid_datetime").std().reset_index().Temperature
+    solar_df_merged.loc[:, "SolarDownwardRadiation_Mean"] = solar_df_merged["SolarDownwardRadiation"]
+    solar_df_merged.loc[:, "Temperature_dwd_Mean"] = solar_df_merged["Temperature"]
+    solar_df_merged["Temperature_dwd_Std"] = solar_df.groupby("valid_datetime").std().reset_index().Temperature
     # Rolling mean and lagged columns
-    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_Mean_30min"] = solar_df_merged["Mean_SolarDownwardRadiation"].rolling(window=1, min_periods=1).mean()
-    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_Mean_1hour"] = solar_df_merged["Mean_SolarDownwardRadiation"].rolling(window=2, min_periods=1).mean()
-    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_30min"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(1)
-    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_1h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(2)
-    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_24h"] = solar_df_merged["Mean_SolarDownwardRadiation"].shift(48)
+    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_dwd_Mean_30min"] = solar_df_merged["SolarDownwardRadiation_Mean"].rolling(window=1, min_periods=1).mean()
+    solar_df_merged.loc[:, "SolarDownwardRadiation_RW_Mean_1h"] = solar_df_merged["SolarDownwardRadiation_Mean"].rolling(window=2, min_periods=1).mean()
+    solar_df_merged.loc[:, "SolarDownwardRadiation_dwd_Mean_Lag_30min"] = solar_df_merged["SolarDownwardRadiation_Mean"].shift(1)
+    solar_df_merged.loc[:, "SolarDownwardRadiation_Mean_Lag_1h"] = solar_df_merged["SolarDownwardRadiation_Mean"].shift(2)
+    solar_df_merged.loc[:, "SolarDownwardRadiation_Mean_Lag_24h"] = solar_df_merged["SolarDownwardRadiation_Mean"].shift(48)
     for i in range(len(distinct_lat_lon_pairs)):
         lat = distinct_lat_lon_pairs.latitude.iloc[i]
         lon = distinct_lat_lon_pairs.longitude.iloc[i]
@@ -234,14 +234,14 @@ def Set_up_features_solar(solar_df,submission_data):
         solar_df_merged[panel_temp_col], solar_df_merged[panel_eff_col] = pv_temperature_efficiency(solar_df_merged[irradiance_col], solar_df_merged[temp_col])
     
 
-    solar_df_merged.loc[:, "Panel_Temperature_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").mean(axis=1)
-    solar_df_merged.loc[:, "Panel_Efficiency_dwd_mean"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").mean(axis=1)
-    solar_df_merged.loc[:, "Panel_Temperature_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").std(axis=1)
-    solar_df_merged.loc[:, "Panel_Efficiency_dwd_std"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").std(axis=1)
-    solar_df_merged.loc[:, "solar_mw_lag_48h"] = solar_df_merged["generation_mw"].shift(periods=time_to_delude)
-    solar_df_merged.loc[:, "capacity_mwp_lag_48h"] = solar_df_merged["capacity_mwp"].shift(periods=time_to_delude)
+    solar_df_merged.loc[:, "Panel_Temperature_Mean"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").mean(axis=1)
+    solar_df_merged.loc[:, "Panel_Efficiency_Mean"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").mean(axis=1)
+    solar_df_merged.loc[:, "Panel_Temperature_Std"] = solar_df_merged.filter(regex=r"Panel_Temperature.*").std(axis=1)
+    solar_df_merged.loc[:, "Panel_Efficiency_Std"] = solar_df_merged.filter(regex=r"Panel_Efficiency.*").std(axis=1)
+    solar_df_merged.loc[:, "Solar_MWh_Lag_48h"] = solar_df_merged["generation_mw"].shift(periods=time_to_delude)
+    solar_df_merged.loc[:, "Capacity_MWP_Lag_48h"] = solar_df_merged["capacity_mwp"].shift(periods=time_to_delude)
     solar_df_merged.loc[:, "Target_Capacity_MWP%"] = solar_df_merged["generation_mw"] / solar_df_merged["capacity_mwp"]
-    solar_df_merged.loc[:, "Target_Capacity_MWP%_lag_48h"] = solar_df_merged["Target_Capacity_MWP%"].shift(periods=time_to_delude)
+    solar_df_merged.loc[:, "Target_Capacity_MWP_%_Lag_48"] = solar_df_merged["Target_Capacity_MWP%"].shift(periods=time_to_delude)
     
     solar_df_merged = pd.merge(solar_df_merged, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
     return solar_df_merged
@@ -390,25 +390,25 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     if model_solar_strom is not None:
         quantiles_strom = [1,2,3,4,5,6,7,8,9]
         solar_df_to_predict = solar_df[[ 
-            "Mean_SolarDownwardRadiation",
-            "SolarDownwardRadiation_RW_Mean_1hour",
-            "SolarDownwardRadiation_RW_Mean_30min",
+            "SolarDownwardRadiation_Mean",
+            "SolarDownwardRadiation_RW_Mean_1h",
+            "SolarDownwardRadiation_RW_dwd_Mean_30min",
             "SolarDownwardRadiation_dwd_Mean_Lag_30min",
-            "SolarDownwardRadiation_dwd_Mean_Lag_1h",
-            "SolarDownwardRadiation_dwd_Mean_Lag_24h",
-            "Panel_Efficiency_dwd_mean",
-            "Panel_Efficiency_dwd_std",
-            "Panel_Temperature_dwd_mean",
-            "Panel_Temperature_dwd_std",
-            "Std_Temperature",
-            "Mean_Temperature",
+            "SolarDownwardRadiation_Mean_Lag_1h",
+            "SolarDownwardRadiation_Mean_Lag_24h",
+            "Panel_Efficiency_Mean",
+            "Panel_Efficiency_Std",
+            "Panel_Temperature_Mean",
+            "Panel_Temperature_Std",
+            "Temperature_dwd_Std",
+            "Temperature_dwd_Mean",
             "cos_hour",
-            "cos_day_of_year",
-            "solar_mw_lag_48h",
-            "capacity_mwp_lag_48h",
-            "Target_Capacity_MWP%_lag_48h",
+            "cos_day",
+            "Solar_MWh_Lag_48h",
+            "Capacity_MWP_Lag_48h",
+            "Target_Capacity_MWP_%_Lag_48",
             ]]
-        mean_to_multiply = solar_df.capacity_mwp_lag_48h.mean()
+        mean_to_multiply = solar_df.Capacity_MWP_Lag_48h.mean()
         for i in quantiles_strom:
             with open(f"{model_solar_strom}{i}.pkl", "rb") as f:
                 model_light = load_pickle1(f)
@@ -451,4 +451,4 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
     print("Submitted data")
 
 if __name__ == "__main__":
-    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/lgbr_model/models/i5_models/lgbr_q",model_bid=("paul_analyse/LSTM_imbalance_price.pth","paul_analyse/LSTM_day_ahead_price.pth"))
+    Update(model_wind_stom="Generation_forecast/Wind_forecast/models/gbr_quantile_0.",model_solar_strom="Generation_forecast/Solar_forecast/models/xgbr_model/models/i6_models/xgbr_q",model_bid=("paul_analyse/LSTM_imbalance_price.pth","paul_analyse/LSTM_day_ahead_price.pth"))
