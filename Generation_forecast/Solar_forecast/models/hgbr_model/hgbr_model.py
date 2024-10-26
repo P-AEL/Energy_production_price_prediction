@@ -8,21 +8,31 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from copy import deepcopy
 import joblib
+import papermill as pm
 logging.basicConfig(level=logging.INFO)
 
 # Set paths
-BASE_PATH = os.getenv('BASE_PATH', "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
-DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train.csv")
+BASE_PATH = os.getenv("BASE_PATH", "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
+DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")   
 FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/hgbr_model/logs")
 MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/hgbr_model/models")
+API_DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/test_norm.csv")
 
 # Load data
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
+data_api = pd.read_csv(API_DATA_PATH)
+df_api = deepcopy(data_api)
 
-X = df.drop(columns= "Solar_MWh_credit")
-y = df["Solar_MWh_credit"]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.2, random_state= 0)
+# -- Taining on all hist data -- #
+X_train = df.drop(columns="Target_Capacity_MWP_%")
+y_train = df["Target_Capacity_MWP_%"]
+X_test = df_api.drop(columns="Target_Capacity_MWP_%") 
+y_test = df_api["Target_Capacity_MWP_%"]
+
+# X = df.drop(columns="Target_Capacity_MWP_%")
+# y = df["Target_Capacity_MWP_%"]
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=False)
 
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
@@ -43,10 +53,7 @@ def objective(trial, alpha):
         "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
         "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 40),
         "l2_regularization": trial.suggest_float("l2_regularization", 0.0, 1.0),
-        "random_state": 0,
-        "early_stopping": True,
-        "validation_fraction": 0.1,
-        "tol": 0.01
+        "random_state": 0
     }
 
     model = HistGradientBoostingRegressor(**params)
@@ -130,3 +137,8 @@ if __name__ == "__main__":
     combined_trials_filename = os.path.join(iteration_logs_path, f"trials.csv")
     combined_trials_df = pd.concat(all_trials, ignore_index=True)
     combined_trials_df.to_csv(combined_trials_filename, index=False)
+
+    # Run the evaluation notebook using papermill
+    eval_notebook_path = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/eval/eval_solar.ipynb")
+    output_notebook_path = os.path.join(iteration_logs_path, f"i{iteration}_eval.ipynb")
+    pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="hgbr_model", iter=iteration))

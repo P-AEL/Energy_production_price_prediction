@@ -16,16 +16,26 @@ BASE_PATH = os.getenv("BASE_PATH", "/Users/florian/Documents/github/DP2/Energy_p
 DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")   
 FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/logs")
 MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/models")
+API_DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/test_norm.csv")
+
 
 # Load data
 data = pd.read_csv(DATA_PATH)
 df = deepcopy(data)
 
-X = df.drop(columns="Target_Capacity_MWP_%")
-y = df["Target_Capacity_MWP_%"]
+# -- Taining on all hist data -- #
+api_data = pd.read_csv(API_DATA_PATH)
+df_api = deepcopy(api_data)
 
+X_train = df.drop(columns="Target_Capacity_MWP_%")
+y_train = df["Target_Capacity_MWP_%"]
+X_test = df_api.drop(columns="Target_Capacity_MWP_%")
+y_test = df_api["Target_Capacity_MWP_%"] 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=False)
+# X = df.drop(columns="Target_Capacity_MWP_%")
+# y = df["Target_Capacity_MWP_%"]
+
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=False)
 
 alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
@@ -141,6 +151,6 @@ if __name__ == "__main__":
     combined_trials_df.to_csv(combined_trials_filename, index=False)
 
     # Run the evaluation notebook using papermill
-    eval_notebook_path = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/eval/eval_models.ipynb")
+    eval_notebook_path = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/eval/eval_solar.ipynb")
     output_notebook_path = os.path.join(iteration_logs_path, f"i{iteration}_eval.ipynb")
     pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="lgbr_model", iter=iteration))

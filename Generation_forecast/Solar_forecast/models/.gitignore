@@ -2,5 +2,9 @@
 /hgbr_model/models
 /lgbr_model/logs
 /lgbr_model/models
+/lgbr_cracked/logs
+/lgbr_cracked/models
 /xgbr_model/logs
 /xgbr_model/models
+/wind_model/logs
+/wind_model/models
