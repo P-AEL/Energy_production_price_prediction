@@ -223,5 +223,9 @@ The Output of the Hornsea-1 windfarm got reduced in January 2024 (max output ~60
 
 ### Power generation forecast using machine learning models
 
+The idea for our machine learning model is calculating a baseline appriximation of the generated power using the provided weather forecast that we obtain from the given API endpoint and then try to model the residium to account for any effects that are not considered in the calculation.
+
+As part of the preprocessing step we removed the datapoints that are unlikely to be a result of a correctly functioning power plant. These may include datapoints at which some parts may have been under maintenance resulting in an overall reduced power output. This is done because we expect that in production we know when parts of the windfarm need maintenance and therefore we are able to adjust our power generation forecast based on that. Because we dont have the actual data to know which parts of the windfarm have been active at any given datapoint, this makes it reasonable to remove these datapoints to increase the model accuracy.
+
 
 
