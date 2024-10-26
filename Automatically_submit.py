@@ -300,7 +300,15 @@ def Set_up_features_bid(submission_data):
     df_api_new_merged2["market_bid"] = df_api_new_merged2.apply(optimize_bidding, axis=1)
     with open(f"paul_analyse/lightgbm_model.joblib", "rb") as f:
         model_bid_residual = load_pickle1(f)
-    X_residual = df_api_new_merged2[["predictions_day_ahead","predictions_imbalance","market_bid","cos_hour","cos_day","1","9"]]
+    X_residual = df_api_new_merged2[["predictions_day_ahead","predictions_imbalance","market_bid","cos_hour","cos_day",'1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9']]
     residuals = model_bid_residual.predict(X_residual.values)
     df_api_new_merged2["market_bid"] = df_api_new_merged2["market_bid"] + residuals
     df_api_new_merged2 = df_api_new_merged2.rename(columns={
