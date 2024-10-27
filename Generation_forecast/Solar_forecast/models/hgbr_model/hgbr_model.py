@@ -30,6 +30,7 @@ y_train = df["Target_Capacity_MWP_%"]
 X_test = df_api.drop(columns="Target_Capacity_MWP_%") 
 y_test = df_api["Target_Capacity_MWP_%"]
 
+# -- Training on 80/20 train test split -- #
 # X = df.drop(columns="Target_Capacity_MWP_%")
 # y = df["Target_Capacity_MWP_%"]
 # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=False)
