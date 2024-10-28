@@ -26,8 +26,8 @@
 
 ## Models
 
-MPL Train: Mean Pinball Loss over all 9 Quantiles on train data
-MPL API: Mean Pinabll Loss over
+- MPL Train: Mean Pinball Loss over all 9 Quantiles on train data
+- MPL API: Mean Pinabll Loss over
 
 | Model                                      | MPL Train  | MPL API |
 |--------------------------------------------|------|------|
