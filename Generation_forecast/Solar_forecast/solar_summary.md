@@ -34,6 +34,6 @@
 | HistGradientBoostingRegressor              |  39.337    |  29.032    |
 | XGBoost                                    |7.457 |  7.6    |
 | LGBMRegressor                              |  9.217    |   6.989   |
-| MLP                                        |      |      |
+| MLP                                        |    8.3020  |   21.09828192764489   |
 | LSTM                                       |      |      |
 | RNN                                        |      |      |
