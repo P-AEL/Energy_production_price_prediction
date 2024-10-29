@@ -141,11 +141,11 @@ def Set_up_features_wind(wind_df,submission_data):
     wind_df['AirDensity'] = (p - e) / (R_d * wind_df['Temperature_K']) + (e / (R_v * wind_df['Temperature_K']))
     # Turbine stats
     rotor_diameter = 154  # in meters
-    approximated_total_efficiency = 0.348
+    approximated_total_efficiency = 0.337
     limiter = 0.94
     minimum_wind_speed = 3  # in m/s
     maximum_wind_speed_for_power_curve = 12.5  # in m/s
-    maximum_wind_speed_for_operation = 25  # in m/s
+    maximum_wind_speed_for_operation = np.inf  # in m/s
     rotor_area = np.pi * (rotor_diameter / 2) ** 2  # in m²
     # turbine requires 3m/s to start rotating
     const_internal_friction_coefficient = 0.5 * 1.240 * np.pi * 77**2 * 3**3 * approximated_total_efficiency * 174 / 1000000
