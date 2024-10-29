@@ -19,7 +19,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from scipy.optimize import minimize
-#pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
 import math
 
 
@@ -89,7 +89,7 @@ def optimize_bidding(row):
     return result.x[0]
 
 def get_predictions(model, X_tensor):
-    input_size = 15  # Number of features
+    input_size = 17  # Number of features
     hidden_size = 64              # Number of LSTM units
     num_layers = 3                 # Number of LSTM layers
     output_size = 1                # Always 9 for 9 quantiles
@@ -166,8 +166,6 @@ def Set_up_features_wind(wind_df,submission_data):
     wind_df.loc[:, "WindSpeed:100_dwd_lag3"] = wind_df["WindSpeed:100"].shift(3)
     wind_df.loc[:, "UsableWindPower_opt"] = wind_df["UsableWindPower_full"]
     wind_df.loc[:, "WindSpeed:100_dwd"] = wind_df["WindSpeed:100"].shift(1)
-    # print(wind_df)
-    # print(pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner'))
 
     return pd.merge(wind_df, submission_data, left_on='valid_datetime',right_on="datetime", how='inner')
 
@@ -250,9 +248,14 @@ def Set_up_features_bid(submission_data):
     df_imbalance_price = pd.read_csv("basic_files/imbalance_price.csv")
     df_day_ahead_price = pd.read_csv("basic_files/day_ahead_price.csv")
     df_market_price = pd.read_csv("basic_files/market_index.csv")
+    df_demand = pd.read_csv('day_ahead_demand_forecast.csv')
+    df_demand = df_demand.groupby("timestamp_utc").last().reset_index()
     df_day_ahead_price.timestamp_utc = pd.to_datetime(df_day_ahead_price.timestamp_utc)
     df_market_price.timestamp_utc = pd.to_datetime(df_market_price.timestamp_utc)
     df_imbalance_price.timestamp_utc = pd.to_datetime(df_imbalance_price.timestamp_utc)
+    df_demand.timestamp_utc = pd.to_datetime(df_demand.timestamp_utc)
+    df_demand = df_demand[["timestamp_utc","transmission_system_demand","national_demand"]]
+    df_demand = df_demand.rename(columns={'timestamp_utc': 'timestamp_utc_demand'})
     min_date = submission_data.datetime.min() - timedelta(minutes=30)
     datetimes = pd.date_range(end=min_date, periods=336, freq='30min')
     df_half_hourly = pd.DataFrame({"datetime": datetimes})
@@ -261,16 +264,27 @@ def Set_up_features_bid(submission_data):
     df_submission_combined = pd.merge(df_submission_combined, df_day_ahead_price, left_on='datetime', right_on='timestamp_utc', how='left')
     df_submission_combined = pd.merge(df_submission_combined, df_imbalance_price, left_on='datetime', right_on='timestamp_utc', how='left')
     df_submission_combined = pd.merge(df_submission_combined, df_market_price, left_on='datetime', right_on='timestamp_utc', how='left')
+    df_submission_combined = pd.merge(df_submission_combined, df_demand, left_on='datetime', right_on='timestamp_utc_demand', how='left')
     df_submission_combined["day_ahead_price"] = df_submission_combined["price_x"].rename("day_ahead_price")
     df_submission_combined["market_price"] = df_submission_combined["price_y"].rename("market_price")
     df_submission_combined["settlement_period"] = df_submission_combined["settlement_period_x"].rename("settlement_period")
     df_submission_combined["cos_hour"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.hour/24)
     df_submission_combined["cos_day"] = np.cos(2*np.pi*df_submission_combined["datetime"].dt.day/7)
-    df_api_new_merged1 = df_submission_combined[["datetime","market_price","day_ahead_price","volume","settlement_period","cos_hour","cos_day","q10","q20","q30","q40","q50","q60","q70","q80","q90","imbalance_price"]].copy()
-    df_api_new_merged1.loc[:,"market_price_lag96h"] = df_api_new_merged1["market_price"].shift(192)
-    df_api_new_merged1.loc[:,"imbalance_price_lag96h"] = df_api_new_merged1["imbalance_price"].shift(192)
+    df_api_new_merged1 = df_submission_combined[["datetime","market_price","day_ahead_price","volume","settlement_period","cos_hour","cos_day","q10","q20","q30","q40","q50","q60","q70","q80","q90","imbalance_price","national_demand","transmission_system_demand"]].copy()
+    max_submitted_date = submission_data.datetime.max()
+    max_imbalance_date = df_imbalance_price.timestamp_utc.max()
+    diff = max_submitted_date - max_imbalance_date
+    rounded_diff = round_timedelta_to_days(diff)
+    time_to_delude = rounded_diff.days * 48
+    max_day_ahead_date = df_day_ahead_price.timestamp_utc.max()
+    diff1 = max_submitted_date - max_day_ahead_date
+    rounded_diff1 = round_timedelta_to_days(diff1)
+    time_to_delude1 = rounded_diff1.days * 48
+
+    df_api_new_merged1.loc[:,"market_price_lag96h"] = df_api_new_merged1["market_price"].shift(96)
+    df_api_new_merged1.loc[:,"imbalance_price_lag96h"] = df_api_new_merged1["imbalance_price"].shift(96)
     df_api_new_merged1.loc[:,"day_ahead_price_lag1week"] = df_api_new_merged1["day_ahead_price"].shift(336)
-    df_api_new_merged1.loc[:,"volume_lag96h"] = df_api_new_merged1["volume"].shift(192)
+    df_api_new_merged1.loc[:,"volume_lag96h"] = df_api_new_merged1["volume"].shift(96)
     df_api_new_merged1 = df_api_new_merged1.rename(columns={
     "q10": "1",
     "q20": "2"
@@ -283,7 +297,7 @@ def Set_up_features_bid(submission_data):
     ,"q90": "9"
     })
     df_api_new_merged2 = df_api_new_merged1[["datetime","market_price_lag96h","imbalance_price_lag96h","day_ahead_price_lag1week","volume_lag96h",
-                    "cos_hour","cos_day","1","2","3","4","5","6","7","8","9"]]
+                    "cos_hour","cos_day","1","2","3","4","5","6","7","8","9","national_demand","transmission_system_demand"]]
     df_api_new_merged2.dropna(inplace=True)
     scaler_path = "paul_analyse/LSTM_imbalance_scaler.pkl"
     with open(scaler_path, 'rb') as file:
@@ -308,7 +322,7 @@ def Set_up_features_bid(submission_data):
         '6',
         '7',
         '8',
-        '9']]
+        '9',"national_demand","transmission_system_demand"]]
     residuals = model_bid_residual.predict(X_residual.values)
     df_api_new_merged2["market_bid"] = df_api_new_merged2["market_bid"] + residuals
     df_api_new_merged2 = df_api_new_merged2.rename(columns={
@@ -344,7 +358,7 @@ def Update(model_wind_stom=None,model_solar_strom=None,model_bid=None):
         quantiles = ["q10", "q20", "q30", "q40", "q50", "q60", "q70", "q80", "q90"]
         for i,quantile in enumerate(quantiles):
             path = f"{model_wind_stom}{i+1}_res-True_calc-False.pkl"
-            with open(f"{model_wind_stom}{i+1}_boa_v3_res-True_calc-False.pkl", "rb") as f:
+            with open(f"{model_wind_stom}{i+1}_boa_v4_res-True_calc-False.pkl", "rb") as f:
                 model = load_pickle1(f)
             # print(f"\nModell für Quantil {quantile}:")
             # print(f"Modelltyp: {type(model).__name__}")
