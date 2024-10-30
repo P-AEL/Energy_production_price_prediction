@@ -1,0 +1,7 @@
+base_path: "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/solar"
+
+models: ["lgbr"]
+alphas: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+n_trials: 20
+iteration: 1
+data_loader: "./solar/config/dataloader_config.yaml"

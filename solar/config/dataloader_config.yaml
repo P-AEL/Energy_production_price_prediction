@@ -1,0 +1,12 @@
+base_path: "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/solar"
+
+data_path: "data/train_norm.csv"
+api_data_path: "data/test_norm.csv"
+
+target_column: "Target_Capacity_MWP_%"
+
+train_test_split:
+  enabled: false
+  ratio: 0.2
+  shuffle: false
+  random_state: 0
