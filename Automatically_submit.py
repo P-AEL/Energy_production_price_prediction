@@ -28,39 +28,40 @@ warnings.filterwarnings("ignore", category=UserWarning)
 def round_timedelta_to_days(td):
     return timedelta(days=math.ceil(td.total_seconds() / (24 * 3600)))
 
-class LSTMPredictor(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout=0.1):
-        super(LSTMPredictor, self).__init__()
-        
-        # Parameters
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.output_size = output_size
-        self.dropout = dropout
+class MLP(nn.Module):
+    def __init__(self, input_dim):
+        super(MLP, self).__init__()
+        # Layer sizes from the best trial
+        layer_sizes = [256, 448, 192, 96]
+        dropout_rates = [0.12338360578207397, 0.2192742565593194, 0.15708417985889997, 0.253419888887539]
 
-        # Define the LSTM layer(s)
-        self.lstm = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_size, 
-                            num_layers=self.num_layers, batch_first=True, dropout=self.dropout)
-        
-        # Fully connected layer to map LSTM output to the target size
-        self.fc = nn.Linear(self.hidden_size, self.output_size)
-        
+        # Define the layers
+        self.fc1 = nn.Linear(input_dim, layer_sizes[0])
+        self.fc2 = nn.Linear(layer_sizes[0], layer_sizes[1])
+        self.fc3 = nn.Linear(layer_sizes[1], layer_sizes[2])
+        self.fc4 = nn.Linear(layer_sizes[2], layer_sizes[3])
+        self.fc5 = nn.Linear(layer_sizes[3], 1)  # Output layer
+
+        # Dropouts
+        self.dropout1 = nn.Dropout(dropout_rates[0])
+        self.dropout2 = nn.Dropout(dropout_rates[1])
+        self.dropout3 = nn.Dropout(dropout_rates[2])
+        self.dropout4 = nn.Dropout(dropout_rates[3])
+
+        # Activation function (Swish)
+        self.swish = nn.SiLU()
+    
     def forward(self, x):
-        # Initialize hidden and cell states for LSTM
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)  # Hidden state
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)  # Cell state
-
-        # Forward propagate LSTM
-        out, _ = self.lstm(x, (h0, c0))  # We only need the output
-        
-        # Get the last output (many-to-one), out[:, -1, :] gives the last time step
-        out = out[:, -1, :]
-        
-        # Pass the output through a fully connected layer
-        out = self.fc(out)
-        
-        return out
+        x = torch.relu(self.fc1(x))  # First layer with ReLU
+        x = self.dropout1(x)         # First dropout
+        x = self.swish(self.fc2(x))  # Second layer with Swish
+        x = self.dropout2(x)         # Second dropout
+        x = self.swish(self.fc3(x))  # Third layer with Swish
+        x = self.dropout3(x)         # Third dropout
+        x = self.swish(self.fc4(x))  # Fourth layer with Swish
+        x = self.dropout4(x)         # Fourth dropout
+        x = self.fc5(x)              # Output layer (no activation for raw outputs)
+        return x
 
 def revenue(zb, DAP, Target_MW, imbalance_price):
     return zb * DAP + (Target_MW - zb) * (imbalance_price - 0.07 * (Target_MW - zb))
@@ -89,12 +90,8 @@ def optimize_bidding(row):
     return result.x[0]
 
 def get_predictions(model, X_tensor):
-    input_size = 17  # Number of features
-    hidden_size = 64              # Number of LSTM units
-    num_layers = 3                 # Number of LSTM layers
-    output_size = 1                # Always 9 for 9 quantiles
-    dropout = 0.1  
-    model_imbalance = LSTMPredictor(input_size, hidden_size, num_layers, output_size, dropout=dropout)
+    input_size = 17  # Number of features  
+    model_imbalance = MLP(input_size)
     model_imbalance.load_state_dict(torch.load(model))
     # Modell in den Evaluierungsmodus versetzen
     model_imbalance.eval()
@@ -280,11 +277,17 @@ def Set_up_features_bid(submission_data):
     diff1 = max_submitted_date - max_day_ahead_date
     rounded_diff1 = round_timedelta_to_days(diff1)
     time_to_delude1 = rounded_diff1.days * 48
+    max_demand_date = df_demand.timestamp_utc_demand.max()
+    diff2 = max_submitted_date - max_demand_date
+    rounded_diff2 = round_timedelta_to_days(diff2)
+    time_to_delude2 = rounded_diff2.days * 48
 
-    df_api_new_merged1.loc[:,"market_price_lag96h"] = df_api_new_merged1["market_price"].shift(96)
-    df_api_new_merged1.loc[:,"imbalance_price_lag96h"] = df_api_new_merged1["imbalance_price"].shift(96)
-    df_api_new_merged1.loc[:,"day_ahead_price_lag1week"] = df_api_new_merged1["day_ahead_price"].shift(336)
-    df_api_new_merged1.loc[:,"volume_lag96h"] = df_api_new_merged1["volume"].shift(96)
+    df_api_new_merged1.loc[:,"market_price_lag96h"] = df_api_new_merged1["market_price"].shift(time_to_delude)
+    df_api_new_merged1.loc[:,"imbalance_price_lag96h"] = df_api_new_merged1["imbalance_price"].shift(time_to_delude)
+    df_api_new_merged1.loc[:,"day_ahead_price_lag1week"] = df_api_new_merged1["day_ahead_price"].shift(time_to_delude1)
+    df_api_new_merged1.loc[:,"volume_lag96h"] = df_api_new_merged1["volume"].shift(time_to_delude)
+    df_api_new_merged1.loc[:,"national_demand"] = df_api_new_merged1["national_demand"].shift(time_to_delude2)
+    df_api_new_merged1.loc[:,"transmission_system_demand"] = df_api_new_merged1["transmission_system_demand"].shift(time_to_delude2)
     df_api_new_merged1 = df_api_new_merged1.rename(columns={
     "q10": "1",
     "q20": "2"
@@ -304,10 +307,9 @@ def Set_up_features_bid(submission_data):
         scaler = pickle.load(file)
     df_api_new_merged2_X = scaler.transform(df_api_new_merged2.drop(columns=["datetime"]))
     X_tensor = torch.tensor(df_api_new_merged2_X, dtype=torch.float32)
-    X_tensor = X_tensor.unsqueeze(1)  # Adds a sequence length dimension
-    model_imbalance = "paul_analyse/LSTM_imbalance_price.pth"
+    model_imbalance = "paul_analyse/MLP_imbalance_price.pth"
     predictions_imbalance = get_predictions(model_imbalance, X_tensor)
-    model_day_ahead = "paul_analyse/LSTM_day_ahead_price.pth"
+    model_day_ahead = "paul_analyse/MLP_day_ahead_price.pth"
     predictions_day_ahead = get_predictions(model_day_ahead, X_tensor)
     df_api_new_merged2["predictions_imbalance"] = predictions_imbalance
     df_api_new_merged2["predictions_day_ahead"] = predictions_day_ahead
