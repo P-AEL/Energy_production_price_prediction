@@ -13,10 +13,10 @@ logging.basicConfig(level=logging.INFO)
 
 # Set paths
 BASE_PATH = os.getenv("BASE_PATH", "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
-DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm1.csv")   
+DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")   
 FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/logs")
 MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_model/models")
-API_DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/test_norm1.csv")
+API_DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/test_norm.csv")
 
 
 # Load data
@@ -76,7 +76,7 @@ def objective(trial, alpha):
     loss = mean_pinball_loss(y_test, y_pred, alpha=alpha)
 
     # Log the step, loss and alpha
-    logging.info(f"Trial {trial.number} - Alpha: {alpha}, Loss: {loss}, Params: {trial.params}")
+    #logging.info(f"Trial {trial.number} - Alpha: {alpha}, Loss: {loss}, Params: {trial.params}")
 
     # Report the loss for pruning
     trial.report(loss, 0)

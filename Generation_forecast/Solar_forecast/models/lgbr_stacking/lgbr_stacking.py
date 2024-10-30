@@ -16,8 +16,8 @@ logging.basicConfig(level=logging.INFO)
 # Set paths
 BASE_PATH = os.getenv("BASE_PATH", "/Users/florian/Documents/github/DP2/Energy_production_price_prediction/") 
 DATA_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/data/train_norm.csv")    
-FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_cracked/logs")
-MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_cracked/models")
+FILEPATH_STUDY = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_stacking/logs")
+MODEL_SAVE_PATH = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/models/lgbr_stacking/models")
 
 # Load data
 data = pd.read_csv(DATA_PATH)
@@ -29,8 +29,7 @@ y = df["Target_Capacity_MWP_%"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, shuffle=True)
 
-#alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-alphas = [0.4, 0.5, 0.6]
+alphas = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 def objective(trial, alpha):
     """
@@ -170,4 +169,4 @@ if __name__ == "__main__":
     # Run the evaluation notebook using papermill
     eval_notebook_path = os.path.join(BASE_PATH, "Generation_forecast/Solar_forecast/eval/eval_solar.ipynb")
     output_notebook_path = os.path.join(iteration_logs_path, f"i{iteration}_eval.ipynb")
-    pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="lgbr_cracked", iter=iteration))
+    pm.execute_notebook(eval_notebook_path, output_notebook_path, parameters=dict(BASE_PATH=BASE_PATH, model_name="lgbr_stacking", iter=iteration))
