@@ -302,7 +302,7 @@ def Set_up_features_bid(submission_data):
     df_api_new_merged2 = df_api_new_merged1[["datetime","market_price_lag96h","imbalance_price_lag96h","day_ahead_price_lag1week","volume_lag96h",
                     "cos_hour","cos_day","1","2","3","4","5","6","7","8","9","national_demand","transmission_system_demand"]]
     df_api_new_merged2.dropna(inplace=True)
-    scaler_path = "paul_analyse/LSTM_imbalance_scaler.pkl"
+    scaler_path = "paul_analyse/MLP_imbalance_scaler.pkl"
     with open(scaler_path, 'rb') as file:
         scaler = pickle.load(file)
     df_api_new_merged2_X = scaler.transform(df_api_new_merged2.drop(columns=["datetime"]))
