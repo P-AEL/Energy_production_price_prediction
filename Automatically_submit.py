@@ -254,7 +254,7 @@ def Set_up_features_bid(submission_data):
     df_demand = df_demand[["timestamp_utc","transmission_system_demand","national_demand"]]
     df_demand = df_demand.rename(columns={'timestamp_utc': 'timestamp_utc_demand'})
     min_date = submission_data.datetime.min() - timedelta(minutes=30)
-    datetimes = pd.date_range(end=min_date, periods=336, freq='30min')
+    datetimes = pd.date_range(end=min_date, periods=384, freq='30min')
     df_half_hourly = pd.DataFrame({"datetime": datetimes})
     df_half_hourly["datetime"] = pd.to_datetime(df_half_hourly["datetime"])
     df_submission_combined = pd.merge(df_half_hourly, submission_data, left_on='datetime', right_on='datetime', how='outer')
